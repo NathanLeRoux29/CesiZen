@@ -13,10 +13,10 @@ import { createVuetify } from 'vuetify'
 
 export default createVuetify({
   theme: {
-    defaultTheme: 'light',
+    defaultTheme: 'dark',
     themes: {
-      light: {
-        dark: false,
+      dark: {
+        dark: true,
         colors: {
           primary: '#04FF92',
           background: '#1D1143',

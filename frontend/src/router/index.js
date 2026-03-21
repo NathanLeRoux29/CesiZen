@@ -8,10 +8,26 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
+import ArticleDetail from '@/pages/ArticleDetail.vue'
+
+// Ajouter la route pour la page de détail d'article
+const customRoutes = [
+  {
+    path: '/',
+    name: 'home',
+    component: () => import('@/pages/Home.vue')
+  },
+  {
+    path: '/article/:id',
+    name: 'article-detail',
+    component: ArticleDetail,
+    props: true
+  }
+]
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
-  routes: setupLayouts(routes),
+  routes: setupLayouts([...routes, ...customRoutes]),
 })
 
 // Workaround for https://github.com/vitejs/vite/issues/11804

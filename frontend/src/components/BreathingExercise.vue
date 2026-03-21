@@ -125,49 +125,23 @@ const soundEnabled = ref(true)
 let timerInterval = null
 let phaseInterval = null
 
-// Techniques de respiration avec leurs durées (en secondes)
+// Techniques de respiration
 const techniques = {
-  box: {
-    name: 'Respiration Carrée',
-    inhale: 4,
+  '748': {
+    name: 'Le 7-4-8',
+    inhale: 7,
     holdIn: 4,
-    exhale: 4,
-    holdOut: 4,
-    instructions: {
-      inhale: 'Inspirez',
-      holdIn: 'Retenez',
-      exhale: 'Expirez',
-      holdOut: 'Retenez'
-    }
-  },
-  '478': {
-    name: 'Méthode 4-7-8',
-    inhale: 4,
-    holdIn: 7,
     exhale: 8,
     holdOut: 0,
     instructions: {
-      inhale: 'Inspirez',
-      holdIn: 'Retenez',
-      exhale: 'Expirez',
-      holdOut: 'Détendez-vous'
-    }
-  },
-  diaphragm: {
-    name: 'Respiration Diaphragmatique',
-    inhale: 4,
-    holdIn: 0,
-    exhale: 6,
-    holdOut: 0,
-    instructions: {
-      inhale: 'Respirez profondément',
-      holdIn: '',
+      inhale: 'Inspirez profondément',
+      holdIn: 'Retenez votre souffle',
       exhale: 'Expirez lentement',
       holdOut: ''
     }
   },
-  coherent: {
-    name: 'Respiration Cohérente',
+  '55': {
+    name: 'Le 5-5',
     inhale: 5,
     holdIn: 0,
     exhale: 5,
@@ -178,11 +152,45 @@ const techniques = {
       exhale: 'Expirez',
       holdOut: ''
     }
+  },
+  '46': {
+    name: 'Le 4-6',
+    inhale: 4,
+    holdIn: 0,
+    exhale: 6,
+    holdOut: 0,
+    instructions: {
+      inhale: 'Inspirez',
+      holdIn: '',
+      exhale: 'Expirez',
+      holdOut: ''
+    }
+  },
+  'custom': {
+    name: 'Personnalisé',
+    instructions: {
+      inhale: 'Inspirez',
+      holdIn: 'Retenez',
+      exhale: 'Expirez',
+      holdOut: 'Retenez'
+    }
   }
 }
 
 // Computed
-const technique = computed(() => techniques[props.config.technique] || techniques.box)
+const technique = computed(() => {
+  const base = techniques[props.config.technique] || techniques['748']
+  if (props.config.technique === 'custom') {
+    return {
+      ...base,
+      inhale: props.config.customIn || 4,
+      holdIn: props.config.customHold || 0,
+      exhale: props.config.customOut || 4,
+      holdOut: 0
+    }
+  }
+  return base
+})
 const totalCycles = computed(() => props.config.cycles || 4)
 const totalDuration = computed(() => props.config.duration * 60) // en secondes
 

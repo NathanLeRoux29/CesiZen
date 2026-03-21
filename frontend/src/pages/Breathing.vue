@@ -1,57 +1,11 @@
 <template>
   <v-container class="breathing-page">
     <Title :message="'Exercices de Respiration'" />
-    <SubTitle :message="'Configurez vos séances de respiration pour votre bien-être'" />
+    <SubTitle :message="'Choisissez une technique ou personnalisez votre séance'" />
 
     <!-- Section Configuration -->
     <v-row class="mt-8">
-      <v-col cols="12" md="6">
-        <v-card class="config-card pa-6" elevation="0" rounded="xl">
-          <h3 class="text-h6 font-weight-bold text-primary mb-6">
-            <v-icon start color="primary">mdi-timer-outline</v-icon>
-            Durée de l'exercice
-          </h3>
-          
-          <div class="mb-6">
-            <p class="text-body-2 text-medium-emphasis mb-2">
-              Durée totale: {{ config.duration }} minutes
-            </p>
-            <v-slider
-              v-model="config.duration"
-              :min="1"
-              :max="30"
-              :step="1"
-              color="primary"
-              track-color="rgba(4, 255, 146, 0.2)"
-              thumb-label
-            >
-              <template v-slot:append>
-                <span class="text-primary font-weight-bold">min</span>
-              </template>
-            </v-slider>
-          </div>
-
-          <div>
-            <p class="text-body-2 text-medium-emphasis mb-2">
-              Cycles de respiration: {{ config.cycles }}
-            </p>
-            <v-slider
-              v-model="config.cycles"
-              :min="1"
-              :max="20"
-              :step="1"
-              color="primary"
-              track-color="rgba(4, 255, 146, 0.2)"
-              thumb-label
-            >
-              <template v-slot:append>
-                <span class="text-primary font-weight-bold">cycles</span>
-              </template>
-            </v-slider>
-          </div>
-        </v-card>
-      </v-col>
-
+      <!-- Choix de la technique -->
       <v-col cols="12" md="6">
         <v-card class="config-card pa-6" elevation="0" rounded="xl">
           <h3 class="text-h6 font-weight-bold text-primary mb-6">
@@ -70,7 +24,7 @@
             >
               <template v-slot:label>
                 <div>
-                  <span class="text-body-1">{{ technique.name }}</span>
+                  <span class="text-body-1 font-weight-bold">{{ technique.name }}</span>
                   <p class="text-body-2 text-medium-emphasis mb-0">
                     {{ technique.description }}
                   </p>
@@ -80,49 +34,66 @@
           </v-radio-group>
         </v-card>
       </v-col>
-    </v-row>
 
-    <!-- Section Type d'exercice -->
-    <v-row class="mt-4">
-      <v-col cols="12">
+      <!-- Paramètres temporels -->
+      <v-col cols="12" md="6">
         <v-card class="config-card pa-6" elevation="0" rounded="xl">
           <h3 class="text-h6 font-weight-bold text-primary mb-6">
-            <v-icon start color="primary">mdi-format-list-bulleted</v-icon>
-            Type d'exercice
+            <v-icon start color="primary">mdi-timer-outline</v-icon>
+            Paramètres de la séance
           </h3>
           
-          <v-chip-group
-            v-model="config.exerciseType"
-            selected-class="bg-primary"
-            mandatory
-          >
-            <v-chip
-              v-for="type in exerciseTypes"
-              :key="type.id"
-              :value="type.id"
-              variant="outlined"
-              size="large"
-            >
-              <v-icon start>{{ type.icon }}</v-icon>
-              {{ type.name }}
-            </v-chip>
-          </v-chip-group>
+          <!-- Durée totale -->
+          <div class="mb-6">
+            <p class="text-body-2 text-medium-emphasis mb-2">
+              Durée totale: {{ config.duration }} minutes
+            </p>
+            <v-slider
+              v-model="config.duration"
+              :min="1"
+              :max="30"
+              :step="1"
+              color="primary"
+              track-color="rgba(4, 255, 146, 0.2)"
+              thumb-label
+            ></v-slider>
+          </div>
+
+          <!-- Configuration des temps (si personnalisé) -->
+          <div v-if="config.technique === 'custom'" class="animate-fade-in">
+            <v-divider class="mb-6"></v-divider>
+            
+            <div class="mb-4">
+              <p class="text-body-2 text-medium-emphasis mb-1">Inspiration: {{ config.customIn }}s</p>
+              <v-slider v-model="config.customIn" :min="1" :max="15" :step="1" color="primary" density="compact" hide-details></v-slider>
+            </div>
+
+            <div class="mb-4">
+              <p class="text-body-2 text-medium-emphasis mb-1">Apnée (Rétention): {{ config.customHold }}s</p>
+              <v-slider v-model="config.customHold" :min="0" :max="15" :step="1" color="amber" density="compact" hide-details></v-slider>
+            </div>
+
+            <div class="mb-4">
+              <p class="text-body-2 text-medium-emphasis mb-1">Expiration: {{ config.customOut }}s</p>
+              <v-slider v-model="config.customOut" :min="1" :max="15" :step="1" color="error" density="compact" hide-details></v-slider>
+            </div>
+          </div>
         </v-card>
       </v-col>
     </v-row>
 
-    <!-- Section Sons et vibrations -->
+    <!-- Section Ambiance -->
     <v-row class="mt-4">
       <v-col cols="12" md="6">
         <v-card class="config-card pa-6" elevation="0" rounded="xl">
           <h3 class="text-h6 font-weight-bold text-primary mb-6">
             <v-icon start color="primary">mdi-volume-high</v-icon>
-            Sons ambient
+            Ambiance sonore
           </h3>
           
           <v-switch
             v-model="config.soundEnabled"
-            label="Activer les sons"
+            label="Activer les sons relaxants"
             color="primary"
             hide-details
             class="mb-4"
@@ -135,6 +106,7 @@
             label="Type de son"
             variant="outlined"
             color="primary"
+            hide-details
           ></v-select>
         </v-card>
       </v-col>
@@ -143,12 +115,12 @@
         <v-card class="config-card pa-6" elevation="0" rounded="xl">
           <h3 class="text-h6 font-weight-bold text-primary mb-6">
             <v-icon start color="primary">mdi-vibrate</v-icon>
-            Vibrations
+            Retour haptique
           </h3>
           
           <v-switch
             v-model="config.vibrationEnabled"
-            label="Activer les vibrations"
+            label="Vibrations au changement de phase"
             color="primary"
             hide-details
             class="mb-4"
@@ -161,19 +133,22 @@
             label="Intensité"
             variant="outlined"
             color="primary"
+            hide-details
           ></v-select>
         </v-card>
       </v-col>
     </v-row>
 
     <!-- Boutons d'action -->
-    <div class="text-center mt-8 mb-8 d-flex justify-center ga-4 flex-wrap">
+    <div class="text-center mt-12 mb-12 d-flex justify-center ga-6 flex-wrap">
       <v-btn
         color="primary"
         size="x-large"
         rounded="xl"
+        variant="outlined"
         @click="saveConfig"
         :loading="isSaving"
+        width="200"
       >
         <v-icon start>mdi-content-save</v-icon>
         Sauvegarder
@@ -184,15 +159,18 @@
         size="x-large"
         rounded="xl"
         @click="startExercise"
+        width="250"
+        elevation="8"
       >
         <v-icon start>mdi-play</v-icon>
-        Commencer l'exercice
+        Commencer
       </v-btn>
     </div>
 
     <!-- Snackbar de confirmation -->
-    <v-snackbar v-model="showSnackbar" color="primary" :timeout="3000">
-      Configuration sauvegardée avec succès !
+    <v-snackbar v-model="showSnackbar" color="primary" rounded="pill" elevation="12">
+      <v-icon start>mdi-check-circle</v-icon>
+      Configuration enregistrée
     </v-snackbar>
 
     <!-- Composant d'exercice de respiration -->
@@ -218,28 +196,22 @@ const showExercise = ref(false)
 // Configuration par défaut
 const config = reactive({
   duration: 5,
-  cycles: 4,
-  technique: 'box',
-  exerciseType: 'relaxation',
+  technique: '748',
+  customIn: 4,
+  customHold: 4,
+  customOut: 4,
   soundEnabled: true,
-  soundType: 'nature',
+  soundType: 'Nature',
   vibrationEnabled: true,
   vibrationIntensity: 'medium'
 })
 
-// Options disponibles
+// Options disponibles (basées sur l'énoncé)
 const techniques = [
-  { id: 'box', name: 'Respiration Carrée', description: 'Inspirez, retenez, expirez, retenez - 4 temps égaux' },
-  { id: '478', name: 'Méthode 4-7-8', description: 'Inspirez 4s, retenez 7s, expirez 8s' },
-  { id: 'diaphragm', name: 'Respiration Diaphragmatique', description: 'Respiration profonde du ventre' },
-  { id: 'coherent', name: 'Respiration Cohérente', description: '6 cycles par minute, inspiration = expiration' }
-]
-
-const exerciseTypes = [
-  { id: 'relaxation', name: 'Relaxation', icon: 'mdi-spa' },
-  { id: 'energy', name: 'Énergie', icon: 'mdi-lightning-bolt' },
-  { id: 'sleep', name: 'Sommeil', icon: 'mdi-sleep' },
-  { id: 'focus', name: 'Concentration', icon: 'mdi-brain' }
+  { id: '748', name: 'Le 7-4-8', description: 'Inspi: 7s | Apnée: 4s | Expi: 8s (Relaxation profonde)' },
+  { id: '55', name: 'Le 5-5', description: 'Inspi: 5s | Apnée: 0s | Expi: 5s (Cohérence Cardiaque)' },
+  { id: '46', name: 'Le 4-6', description: 'Inspi: 4s | Apnée: 0s | Expi: 6s (Apaisement rapide)' },
+  { id: 'custom', name: 'Personnalisé', description: 'Configurez vos propres durées de respiration' }
 ]
 
 const soundOptions = [
@@ -247,7 +219,7 @@ const soundOptions = [
   'Océan',
   'Forêt',
   'Pluie',
-  'Silencieux'
+  'Bruit Blanc'
 ]
 
 const vibrationOptions = [
@@ -264,31 +236,24 @@ onMounted(() => {
       const parsed = JSON.parse(savedConfig)
       Object.assign(config, parsed)
     } catch (e) {
-      console.error('Erreur lors du chargement de la configuration:', e)
+      console.error('Erreur chargement:', e)
     }
   }
 })
 
-// Sauvegarder la configuration
 const saveConfig = async () => {
   isSaving.value = true
-  
-  // Simulation d'un appel API
   setTimeout(() => {
-    // Sauvegarde dans le localStorage
     localStorage.setItem('breathingConfig', JSON.stringify(config))
-    
     isSaving.value = false
     showSnackbar.value = true
-  }, 1000)
+  }, 600)
 }
 
-// Démarrer l'exercice
 const startExercise = () => {
   showExercise.value = true
 }
 
-// Callback quand l'exercice est terminé
 const onExerciseComplete = () => {
   showSnackbar.value = true
 }
@@ -296,34 +261,41 @@ const onExerciseComplete = () => {
 
 <style scoped>
 .breathing-page {
-  max-width: 1400px;
+  max-width: 1200px;
   margin: 0 auto;
 }
 
 .config-card {
-  background: rgba(255, 255, 255, 0.05);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(10px);
   border: 1px solid rgba(4, 255, 146, 0.1);
   height: 100%;
+  transition: transform 0.3s ease;
+}
+
+.config-card:hover {
+  border-color: rgba(4, 255, 146, 0.3);
 }
 
 .config-card :deep(.v-radio) {
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid rgba(4, 255, 146, 0.1);
-  margin-bottom: 8px;
+  padding: 16px;
+  border-radius: 12px;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  margin-bottom: 12px;
+  transition: all 0.2s ease;
 }
 
 .config-card :deep(.v-radio--checked) {
   border-color: #04FF92;
-  background: rgba(4, 255, 146, 0.1);
+  background: rgba(4, 255, 146, 0.05);
 }
 
-.config-card :deep(.v-chip) {
-  border-color: rgba(4, 255, 146, 0.3);
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out;
 }
 
-.config-card :deep(.v-chip--selected) {
-  background: rgba(4, 255, 146, 0.2) !important;
-  border-color: #04FF92;
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 </style>

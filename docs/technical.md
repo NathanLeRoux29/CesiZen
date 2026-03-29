@@ -7,6 +7,9 @@ CesiZen est une application web de bien-être développée avec Vue.js 3 et Vuet
 ### Stack Technique
 - **Frontend**: Vue.js 3 (Composition API)
 - **UI Framework**: Vuetify 3
+- **Backend**: Node.js / Express
+- **Base de Données**: MySQL
+- **Documentation API**: Swagger
 - **Gestion d'état**: Pinia
 - **Routing**: Vue Router 4
 - **Build Tool**: Vite
@@ -22,35 +25,28 @@ CesiZen est une application web de bien-être développée avec Vue.js 3 et Vuet
 ## 2. Structure des Fichiers
 
 ```
-frontend/src/
-├── assets/              # Ressources statiques
-│   └── logo.png
-├── components/          # Composants réutilisables
-│   ├── AppBar.vue       # Barre de navigation
-│   ├── ArticleCard.vue  # Carte d'article
-│   ├── SubTitle.vue     # Sous-titre
-│   └── Title.vue        # Titre
-├── data/                # Données mockées
-│   └── articles.js      # Articles de bien-être
-├── layouts/             # Layouts
-│   └── default.vue
-├── pages/               # Pages de l'application
-│   ├── HomePage.vue     # Page d'accueil
-│   ├── LoginPage.vue    # Page de connexion
-│   ├── CataloguePage.vue# Catalogue d'articles
-│   ├── UserPage.vue     # Page utilisateur
-│   └── BreathingPage.vue# Configuration respiration
-├── plugins/             # Plugins Vuetify
-│   └── vuetify.js
-├── router/              # Configuration du router
-│   └── index.js
-├── stores/              # Stores Pinia
-│   ├── app.js
-│   └── user.js          # Store utilisateur
-├── styles/              # Styles globaux
-│   └── settings.scss
-├── App.vue              # Composant racine
-└── main.js              # Point d'entrée
+CesiZen/
+├── backend/             # Partie API Node.js
+│   ├── src/
+│   │   ├── config/      # Configuration (DB, Swagger)
+│   │   ├── controllers/ # Logique métier
+│   │   ├── dao/         # Data Access Object (Requêtes SQL)
+│   │   ├── models/      # Définition des objets
+│   │   ├── routes/      # Points d'entrée API
+│   │   ├── app.js       # Configuration Express
+│   │   └── server.js    # Lancement du serveur
+│   ├── sql/             # Scripts de création de la DB
+│   └── .env             # Variables d'environnement
+├── frontend/            # Partie Interface Vue.js
+│   ├── src/
+│   │   ├── assets/      
+│   │   ├── components/  
+│   │   ├── pages/       
+│   │   ├── plugins/     
+│   │   ├── router/      
+│   │   ├── stores/      
+│   │   └── App.vue
+└── docs/                # Documentation projet
 ```
 
 ## 3. Pages Implémentées
@@ -158,27 +154,62 @@ L'application utilise les breakpoints Vuetify:
 - **lg** (1280px - 1920px): Desktop
 - **xl** (> 1920px): Grand écran
 
-## 9. Installation et Lancement
+## 9. Architecture Backend (API)
 
+Le backend est structuré pour séparer la logique de routage de la logique d'accès aux données. Nous utilisons Express pour le serveur et `mysql2` pour la communication avec la base de données.
+
+### 9.1 Organisation du Code
+- **Routes** : Définissent les URLs disponibles (ex: `/api/articles`).
+- **Controllers** : Reçoivent les requêtes, appellent les DAO et renvoient les réponses JSON.
+- **DAO (Data Access Objects)** : Contiennent les requêtes SQL pures pour interagir avec la base.
+
+### 9.2 Points d'Entrée Principaux
+L'API est documentée via Swagger, accessible sur `/api-docs`.
+
+| Route | Méthode | Description |
+|-------|---------|-------------|
+| `/api/articles` | GET | Récupère la liste des articles |
+| `/api/articles/:id` | GET | Détails d'un article spécifique |
+| `/api/users/login` | POST | Authentification utilisateur |
+| `/api/breathing/exercises` | GET | Liste des techniques de respiration |
+
+## 10. Base de Données
+
+Nous avons choisi MySQL pour sa robustesse et sa facilité d'intégration dans un environnement académique.
+
+### 10.1 Schéma Relationnel
+Le schéma est composé de plusieurs tables clés :
+- **users** : Stocke les informations des utilisateurs et les droits admin.
+- **articles** : Contient le contenu, lié à une **category**.
+- **breath_exercises** : Paramètres des techniques (inspire, expire, rétention).
+- **breath_sessions** : Historique des sessions réalisées par les utilisateurs.
+- **favorites** : Lien entre utilisateurs et articles favoris.
+
+### 10.2 Script SQL
+Le script complet de création et d'initialisation (avec données de test) se trouve dans `backend/sql/cesizen.sql`.
+
+## 11. Installation et Lancement
+
+### 11.1 Frontend
 ```bash
-# Installation des dépendances
 cd frontend
 npm install
-
-# Lancement en mode développement
 npm run dev
-
-# Build pour la production
-npm run build
 ```
 
-## 10. Perspectives d'Évolution
+### 11.2 Backend
+```bash
+cd backend
+npm install
+# Configurer le fichier .env avec les accès DB
+npm run dev
+```
 
-- Ajout d'un backend API
-- Intégration avec Capacitor pour mobile
-- Page de détail des articles
-- Système d'authentification réel
-- Exercises de respiration fonctionnels
-- Page de diagnostics
-- Tracker d'émotions
-- FAQ
+## 12. Perspectives d'Évolution
+
+- [x] Ajout d'un backend API fonctionnel
+- [x] Passage des données mockées vers une base MySQL
+- [ ] Intégration complète avec Capacitor pour mobile
+- [ ] Système d'authentification réel (JWT en cours)
+- [ ] Tracker d'émotions avec historique
+- [ ] Page de diagnostics complets

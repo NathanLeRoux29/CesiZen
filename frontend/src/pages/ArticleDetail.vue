@@ -41,9 +41,23 @@
                 {{ article.category }}
               </v-chip>
 
-              <h1 class="article-detail__title text-h2 text-sm-h1 font-weight-bold text-white mb-6">
-                {{ article.title }}
-              </h1>
+                <div class="d-flex align-center justify-space-between mb-6">
+                  <h1 class="article-detail__title text-h2 text-sm-h1 font-weight-bold text-white mb-0">
+                    {{ article.title }}
+                  </h1>
+                  
+                  <!-- Bouton Favori -->
+                  <v-btn
+                    v-if="userStore.isLoggedIn"
+                    :icon="isFavorite ? 'mdi-heart' : 'mdi-heart-outline'"
+                    :color="isFavorite ? 'primary' : 'white'"
+                    variant="tonal"
+                    size="large"
+                    class="ml-4 favorite-btn"
+                    @click="toggleFavorite"
+                    :loading="isFavoriteLoading"
+                  ></v-btn>
+                </div>
 
               <div class="article-detail__meta d-flex align-center flex-wrap gap-6 mb-12">
                 <div class="d-flex align-center">
@@ -112,15 +126,19 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { useUserStore } from '@/stores/user'
 import ArticleCard from '@/components/ArticleCard.vue'
 import { getArticleById, getSuggestedArticles } from '@/data/articles.js'
 
 const route = useRoute()
 const router = useRouter()
+const userStore = useUserStore()
 
 // État
 const article = ref(null)
 const suggestedArticles = ref([])
+const isFavorite = ref(false)
+const isFavoriteLoading = ref(false)
 
 // Computed properties
 const authorInitials = computed(() => {
@@ -143,12 +161,49 @@ const goBack = () => {
   router.push('/Catalogue')
 }
 
-const loadArticle = () => {
+const loadArticle = async () => {
   const articleId = parseInt(route.params.id)
   article.value = getArticleById(articleId)
   
   if (article.value) {
     suggestedArticles.value = getSuggestedArticles(article.value.id)
+    if (userStore.isLoggedIn) {
+      checkFavoriteStatus()
+    }
+  }
+}
+
+const checkFavoriteStatus = async () => {
+  try {
+    const response = await fetch(`http://localhost:3001/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`)
+    const data = await response.json()
+    isFavorite.value = data.isFavorite
+  } catch (e) {
+    console.error('Erreur check favorite:', e)
+  }
+}
+
+const toggleFavorite = async () => {
+  if (isFavoriteLoading.value) return
+  isFavoriteLoading.value = true
+  
+  const method = isFavorite.value ? 'DELETE' : 'POST'
+  const url = `http://localhost:3001/api/favorites/articles${method === 'DELETE' ? `?userId=${userStore.user.id}&articleId=${article.value.id}` : ''}`
+  
+  try {
+    const response = await fetch(url, {
+      method,
+      headers: { 'Content-Type': 'application/json' },
+      body: method === 'POST' ? JSON.stringify({ userId: userStore.user.id, articleId: article.value.id }) : null
+    })
+    
+    if (response.ok) {
+      isFavorite.value = !isFavorite.value
+    }
+  } catch (e) {
+    console.error('Erreur toggle favorite:', e)
+  } finally {
+    isFavoriteLoading.value = false
   }
 }
 
@@ -211,6 +266,19 @@ onMounted(() => {
 .author-avatar {
   background: linear-gradient(135deg, #04FF92 0%, #00B8D4 100%);
   box-shadow: 0 4px 12px rgba(4, 255, 146, 0.3);
+}
+
+.favorite-btn {
+  background: rgba(255, 255, 255, 0.1) !important;
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2) !important;
+  transition: all 0.3s ease;
+}
+
+.favorite-btn:hover {
+  transform: scale(1.1);
+  background: rgba(4, 255, 146, 0.2) !important;
+  border-color: #04FF92 !important;
 }
 
 .text-white-70 {

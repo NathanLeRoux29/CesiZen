@@ -72,13 +72,18 @@
             </v-card>
           </v-col>
           <v-col cols="12" sm="4">
-            <v-card class="stat-card pa-6 text-center" elevation="0" rounded="lg">
+            <v-card 
+              class="stat-card pa-6 text-center cursor-pointer" 
+              elevation="0" 
+              rounded="lg"
+              @click="openFavoritesDialog"
+            >
               <v-icon color="primary" size="48" class="mb-3">mdi-heart</v-icon>
               <h3 class="text-h4 font-weight-bold text-primary">
                 {{ userStore.user.stats.favoritesCount }}
               </h3>
               <p class="text-body-2 text-medium-emphasis">
-                Favoris
+                Articles Favoris
               </p>
             </v-card>
           </v-col>
@@ -254,14 +259,61 @@
         </div>
       </v-card>
     </v-dialog>
+
+    <!-- Dialog des Articles Favoris -->
+    <v-dialog v-model="favoritesDialog" max-width="800" scrollable>
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-6">
+          <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
+            <v-icon color="primary" class="mr-3">mdi-heart</v-icon>
+            Mes Articles Favoris
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="favoritesDialog = false"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
+
+        <v-card-text class="pa-0">
+          <div v-if="loadingFavorites" class="text-center py-12">
+            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+          </div>
+          <div v-else-if="favoriteArticles.length === 0" class="text-center py-12 opacity-70">
+            <v-icon size="64" class="mb-4">mdi-heart-outline</v-icon>
+            <p>Vous n'avez pas encore d'articles favoris.</p>
+          </div>
+          <v-row v-else class="ma-0">
+            <v-col v-for="art in favoriteArticles" :key="art.id" cols="12">
+              <v-card 
+                class="favorite-article-item pa-4" 
+                elevation="0" 
+                rounded="lg"
+                @click="goToArticle(art.id)"
+              >
+                <div class="d-flex align-center">
+                  <v-icon color="primary" class="mr-4">mdi-file-document-outline</v-icon>
+                  <div class="flex-grow-1">
+                    <div class="d-flex align-center mb-1">
+                      <span class="text-caption text-primary font-weight-bold text-uppercase mr-3">{{ art.category }}</span>
+                    </div>
+                    <h4 class="text-subtitle-1 font-weight-bold text-white mb-0">{{ art.title }}</h4>
+                  </div>
+                  <v-btn icon="mdi-arrow-right" variant="text" color="primary" size="small"></v-btn>
+                </div>
+              </v-card>
+            </v-col>
+          </v-row>
+        </v-card-text>
+      </v-card>
+    </v-dialog>
   </v-container>
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
+import { ref, reactive, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import Title from '@/components/Title.vue'
+import ArticleCard from '@/components/ArticleCard.vue'
 
 const router = useRouter()
 const userStore = useUserStore()
@@ -269,6 +321,11 @@ const userStore = useUserStore()
 // Dialogs
 const editDialog = ref(false)
 const deleteDialog = ref(false)
+const favoritesDialog = ref(false)
+
+// État Favoris
+const favoriteArticles = ref([])
+const loadingFavorites = ref(false)
 
 // Formulaire de modification
 const editFormValid = ref(false)
@@ -303,6 +360,39 @@ const confirmDelete = () => {
   deleteDialog.value = false
   router.push('/')
 }
+
+// Favoris
+const openFavoritesDialog = () => {
+  favoritesDialog.value = true
+  fetchFavorites()
+}
+
+const goToArticle = (id) => {
+  favoritesDialog.value = false
+  router.push(`/article/${id}`)
+}
+
+const fetchFavorites = async () => {
+  if (!userStore.isLoggedIn) return
+  loadingFavorites.value = true
+  try {
+    const response = await fetch(`http://localhost:3001/api/favorites/articles/user/${userStore.user.id}`)
+    const data = await response.json()
+    favoriteArticles.value = data
+    // Optionnel: Mettre à jour le compteur du store
+    userStore.user.stats.favoritesCount = data.length
+  } catch (e) {
+    console.error('Erreur fetch favorites:', e)
+  } finally {
+    loadingFavorites.value = false
+  }
+}
+
+onMounted(() => {
+  if (userStore.isLoggedIn) {
+    fetchFavorites()
+  }
+})
 </script>
 
 <style scoped>
@@ -344,5 +434,32 @@ const confirmDelete = () => {
 
 .gap-2 {
   gap: 8px;
+}
+
+.favorites-modal {
+  background: #1D1143 !important;
+  border: 1px solid rgba(4, 255, 146, 0.2);
+  overflow-x: hidden !important;
+}
+
+.opacity-70 {
+  opacity: 0.7;
+}
+
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.favorite-article-item {
+  background: rgba(255, 255, 255, 0.03) !important;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.favorite-article-item:hover {
+  background: rgba(4, 255, 146, 0.05) !important;
+  border-color: rgba(4, 255, 146, 0.3);
+  transform: translateX(4px);
 }
 </style>

@@ -569,7 +569,7 @@ const onExerciseComplete = () => {
 
 /* Modal Styling */
 .save-modal-card {
-  background: #241b5d !important; /* Lighter opaque background for depth */
+  background: rgba(36, 24, 72);
   border: 1px solid rgba(4, 255, 146, 0.3);
   box-shadow: 0 25px 50px rgba(0, 0, 0, 0.6) !important;
 }

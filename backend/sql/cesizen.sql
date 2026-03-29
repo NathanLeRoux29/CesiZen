@@ -26,11 +26,11 @@ CREATE TABLE `categories` (
 );
 
 CREATE TABLE `favorites` (
-  `id` integer PRIMARY KEY,
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `user_id` integer,
   `article_id` integer,
   `activity_id` integer,
-  `created_at` datetime
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE `breath_exercises` (
@@ -97,8 +97,8 @@ INSERT INTO `categories` (`id`, `label`) VALUES
 
 -- 2. Utilisateurs
 INSERT INTO `users` (`id`, `username`, `email`, `password`, `is_admin`, `is_active`, `created_at`) VALUES
-(1, 'admin', 'admin@cesizen.fr', 'admin123', true, true, NOW()),
-(2, 'utilisateur', 'user@cesizen.fr', 'user123', false, true, NOW());
+(1, 'admin', 'admin@cesizen.fr', '$2b$10$.FkELN6S1BpUYiVfbccz8uhhEV/814KrrAfjShsm9hknlhQfs3sj.', true, true, NOW()), -- admin123
+(2, 'utilisateur', 'user@cesizen.fr', '$2b$10$vr6TBwrKgZGNZI.tH8PnoOmiWU6uI9DHxRnveTCtwOfJpp2DFS.zq', false, true, NOW()); -- user123
 
 -- 3. Articles mockés (Avec l'ID de catégorie correspondant)
 INSERT INTO `articles` (`id`, `title`, `summary`, `content`, `media_url`, `author`, `is_active`, `created_at`, `id_category`) VALUES

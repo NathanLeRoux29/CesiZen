@@ -13,12 +13,25 @@
                 contain
               ></v-img>
               <p class="text-h6 text-info opacity-70 font-weight-regular">
-                Connectez-vous à votre espace bien-être
+                {{ isRegisterMode ? 'Créez votre compte CesiZen' : 'Connectez-vous à votre espace bien-être' }}
               </p>
             </div>
 
             <!-- Formulaire de connexion -->
-            <v-form ref="form" v-model="isFormValid" @submit.prevent="handleLogin">
+            <v-form ref="form" v-model="isFormValid" @submit.prevent="handleSubmit">
+              <v-text-field
+                v-if="isRegisterMode"
+                v-model="username"
+                label="Nom d'utilisateur"
+                prepend-inner-icon="mdi-account-outline"
+                variant="outlined"
+                color="primary"
+                :rules="usernameRules"
+                class="mb-4 premium-input animate-fade-in"
+                bg-color="rgba(255,255,255,0.03)"
+                flat
+              ></v-text-field>
+
               <v-text-field
                 v-model="email"
                 label="Adresse Email"
@@ -47,8 +60,8 @@
                 flat
               ></v-text-field>
 
-              <div class="d-flex justify-end mb-8">
-                <a href="#" class="text-primary text-body-2 forgot-link" @click.prevent="forgotPassword">
+              <div v-if="!isRegisterMode" class="d-flex justify-end mb-8">
+                <a href="#" class="text-primary text-body-2 forgot-link" @click.prevent="errorMessage = 'Bientôt disponible'">
                   Mot de passe oublié ?
                 </a>
               </div>
@@ -64,33 +77,24 @@
                 class="mb-6 login-btn"
                 elevation="8"
               >
-                Se connecter
+                {{ isRegisterMode ? 'Créer mon compte' : 'Se connecter' }}
               </v-btn>
 
-              <div class="d-flex align-center mb-6">
-                <v-divider class="opacity-10"></v-divider>
-                <span class="mx-4 text-caption text-info opacity-30 text-uppercase">OU</span>
-                <v-divider class="opacity-10"></v-divider>
+              <div class="text-center mt-4">
+                <p class="text-body-2 text-info opacity-70">
+                  {{ isRegisterMode ? 'Déjà un compte ?' : 'Pas encore de compte ?' }}
+                  <a href="#" class="text-primary font-weight-bold ml-1 active-link" @click.prevent="toggleMode">
+                    {{ isRegisterMode ? 'Se connecter' : 'S\'inscrire' }}
+                  </a>
+                </p>
               </div>
-
-              <v-btn
-                variant="outlined"
-                color="primary"
-                size="large"
-                block
-                rounded="lg"
-                @click="handleRegister"
-                class="register-btn"
-              >
-                Créer un compte
-              </v-btn>
             </v-form>
 
             <!-- Message d'erreur -->
             <v-fade-transition>
               <v-alert
                 v-if="errorMessage"
-                type="error"
+                :type="errorMessage.includes('créé') ? 'success' : 'error'"
                 variant="tonal"
                 class="mt-6 glass-alert"
                 closable
@@ -118,7 +122,9 @@ const userStore = useUserStore()
 const form = ref(null)
 const isFormValid = ref(false)
 const isLoading = ref(false)
+const isRegisterMode = ref(false)
 const email = ref('')
+const username = ref('')
 const password = ref('')
 const showPassword = ref(false)
 const errorMessage = ref('')
@@ -129,46 +135,75 @@ const emailRules = [
   v => /.+@.+\..+/.test(v) || 'L\'email doit être valide'
 ]
 
+const usernameRules = [
+  v => !!v || 'Le nom d\'utilisateur est requis',
+  v => v.length >= 3 || 'Le nom doit contenir au moins 3 caractères'
+]
+
 const passwordRules = [
   v => !!v || 'Le mot de passe est requis',
   v => v.length >= 6 || 'Le mot de passe doit contenir au moins 6 caractères'
 ]
 
-// Gestion de la connexion
-const handleLogin = async () => {
+// Basculer entre login et register
+const toggleMode = () => {
+  isRegisterMode.value = !isRegisterMode.value
+  errorMessage.value = ''
+}
+
+// Gestion de la connexion / inscription
+const handleSubmit = async () => {
   if (!isFormValid.value) return
 
   isLoading.value = true
   errorMessage.value = ''
 
-  // Simulation d'un appel API
-  setTimeout(() => {
-    // Mock: connexion réussie avec des données utilisateur
-    userStore.login({
-      id: 1,
-      name: 'Stéphane',
-      email: email.value,
-      avatar: 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
-      stats: {
-        articlesViewed: 12,
-        favoritesCount: 5,
-        breathingExercises: 8
-      }
+  const url = isRegisterMode.value 
+    ? 'http://localhost:3001/api/users/register' 
+    : 'http://localhost:3001/api/users/login'
+    
+  const payload = isRegisterMode.value 
+    ? { email: email.value, username: username.value, password: password.value }
+    : { email: email.value, password: password.value }
+
+  try {
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
     })
 
+    const data = await response.json()
+
+    if (response.ok) {
+      if (isRegisterMode.value) {
+        // Après inscription, on bascule en login ou on connecte directement
+        isRegisterMode.value = false
+        errorMessage.value = 'Compte créé ! Vous pouvez vous connecter.'
+      } else {
+        // Connexion réussie
+        userStore.login({
+          id: data.user.id,
+          name: data.user.username, // On mappe username sur name pour le store
+          email: data.user.email,
+          avatar: data.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
+          stats: data.user.stats || {
+            articlesViewed: 0,
+            favoritesCount: 0,
+            breathingExercises: 0
+          }
+        })
+        router.push('/')
+      }
+    } else {
+      errorMessage.value = data.error || 'Une erreur est survenue'
+    }
+  } catch (error) {
+    console.error('Erreur authentification:', error)
+    errorMessage.value = 'Impossible de contacter le serveur'
+  } finally {
     isLoading.value = false
-    router.push('/')
-  }, 1000)
-}
-
-// Gestion du mot de passe oublié
-const forgotPassword = () => {
-  errorMessage.value = 'Fonctionnalité à venir'
-}
-
-// Gestion de l'inscription
-const handleRegister = () => {
-  errorMessage.value = 'Fonctionnalité à venir'
+  }
 }
 </script>
 

@@ -70,12 +70,12 @@
 
             <div class="mb-4">
               <p class="text-body-2 text-medium-emphasis mb-1">Apnée (Rétention): {{ config.customHold }}s</p>
-              <v-slider v-model="config.customHold" :min="0" :max="15" :step="1" color="amber" density="compact" hide-details></v-slider>
+              <v-slider v-model="config.customHold" :min="0" :max="15" :step="1" color="primary" density="compact" hide-details></v-slider>
             </div>
 
             <div class="mb-4">
               <p class="text-body-2 text-medium-emphasis mb-1">Expiration: {{ config.customOut }}s</p>
-              <v-slider v-model="config.customOut" :min="1" :max="15" :step="1" color="error" density="compact" hide-details></v-slider>
+              <v-slider v-model="config.customOut" :min="1" :max="15" :step="1" color="primary" density="compact" hide-details></v-slider>
             </div>
           </div>
         </v-card>

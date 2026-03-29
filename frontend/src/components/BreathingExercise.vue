@@ -70,13 +70,13 @@
           
           <v-btn
             v-else
-            color="error"
+            :color="isPaused ? 'primary' : 'error'"
             size="x-large"
             rounded="xl"
             @click="pauseExercise"
           >
-            <v-icon start>mdi-pause</v-icon>
-            Pause
+            <v-icon start>{{ isPaused ? 'mdi-play' : 'mdi-pause' }}</v-icon>
+            {{ isPaused ? 'Reprendre' : 'Pause' }}
           </v-btn>
         </div>
 
@@ -250,7 +250,8 @@ const pauseExercise = () => {
   isPaused.value = !isPaused.value
   if (isPaused.value) {
     clearInterval(timerInterval)
-    clearInterval(phaseInterval)
+    clearTimeout(phaseInterval)
+    isAnimating.value = false
   } else {
     startTimer()
     resumeBreathingCycle()
@@ -313,7 +314,7 @@ const runPhase = (phase) => {
     vibrate(props.config.vibrationIntensity)
   }
   
-  clearInterval(phaseInterval)
+  clearTimeout(phaseInterval)
   phaseInterval = setTimeout(() => {
     isAnimating.value = false
     

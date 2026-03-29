@@ -54,6 +54,19 @@ CREATE TABLE `breath_sessions` (
   `exercise_id` integer
 );
 
+CREATE TABLE `breathing_favorites` (
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
+  `user_id` integer,
+  `name` varchar(255),
+  `breath_in` integer,
+  `breath_hold` integer,
+  `breath_out` integer,
+  `duration` integer,
+  `sound_type` varchar(255),
+  `vibration_intensity` varchar(255),
+  `created_at` datetime DEFAULT CURRENT_TIMESTAMP
+);
+
 ALTER TABLE `articles` ADD FOREIGN KEY (`id_category`) REFERENCES `categories` (`id`);
 
 ALTER TABLE `favorites` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
@@ -63,6 +76,8 @@ ALTER TABLE `favorites` ADD FOREIGN KEY (`article_id`) REFERENCES `articles` (`i
 ALTER TABLE `breath_sessions` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 ALTER TABLE `breath_sessions` ADD FOREIGN KEY (`exercise_id`) REFERENCES `breath_exercises` (`id`);
+
+ALTER TABLE `breathing_favorites` ADD FOREIGN KEY (`user_id`) REFERENCES `users` (`id`);
 
 
 -- 1. Catégories (Extraites des données mockées du frontend)

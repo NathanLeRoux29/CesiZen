@@ -24,9 +24,11 @@ app.get('/', (req, res) => {
 const articleRoutes = require('./routes/articleRoutes');
 const breathRoutes = require('./routes/breathRoutes');
 const userRoutes = require('./routes/userRoutes');
+const breathingFavoriteRoutes = require('./routes/breathingFavoriteRoutes');
 
 app.use('/api/articles', articleRoutes);
 app.use('/api/breathing', breathRoutes);
+app.use('/api/breathing/favorites', breathingFavoriteRoutes);
 app.use('/api/users', userRoutes);
 
 module.exports = app;

@@ -27,6 +27,31 @@ class UserDAO {
         );
         return result.insertId;
     }
+    /**
+     * Récupère tous les utilisateurs.
+     */
+    static async getAll() {
+        const [rows] = await db.query('SELECT id, username, email, is_admin, is_active, created_at FROM users');
+        return rows;
+    }
+
+    /**
+     * Supprime ou désactive un utilisateur.
+     */
+    static async delete(id) {
+        await db.query('DELETE FROM users WHERE id = ?', [id]);
+    }
+
+    /**
+     * Met à jour un utilisateur.
+     */
+    static async update(id, userData) {
+        const { username, email, is_admin, is_active } = userData;
+        await db.query(
+            'UPDATE users SET username = ?, email = ?, is_admin = ?, is_active = ? WHERE id = ?',
+            [username, email, is_admin, is_active, id]
+        );
+    }
 }
 
 module.exports = UserDAO;

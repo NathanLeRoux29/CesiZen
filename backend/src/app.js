@@ -26,11 +26,13 @@ const breathRoutes = require('./routes/breathRoutes');
 const userRoutes = require('./routes/userRoutes');
 const breathingFavoriteRoutes = require('./routes/breathingFavoriteRoutes');
 const articleFavoriteRoutes = require('./routes/articleFavoriteRoutes');
+const adminRoutes = require('./routes/adminRoutes');
 
 app.use('/api/articles', articleRoutes);
 app.use('/api/breathing', breathRoutes);
 app.use('/api/breathing/favorites', breathingFavoriteRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/favorites/articles', articleFavoriteRoutes);
+app.use('/api/admin', adminRoutes);
 
 module.exports = app;

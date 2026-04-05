@@ -105,23 +105,43 @@
 
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
+import axios from 'axios'
 import Title from '@/components/Title.vue'
 import ArticleCard from '@/components/ArticleCard.vue'
-import { articles as allArticles } from '@/data/articles.js'
 
 // Catégories
 const categories = ['Tous', 'Méditation', 'Yoga', 'Respiration', 'Sommeil', 'Nutrition', 'Nature', 'Émotions', 'Sport', 'Maison', 'Social', 'Technologie', 'Psychologie']
 
 // État
+const allArticles = ref([])
 const selectedCategory = ref('Tous')
 const searchQuery = ref('')
 const currentPage = ref(1)
 const articlesPerPage = 6
 const isLoading = ref(false)
 
+// Chargement des articles depuis l'API
+const fetchArticles = async () => {
+  isLoading.value = true
+  try {
+    const response = await axios.get('http://localhost:3001/api/articles')
+    // On mappe les champs pour correspondre à ce que le front attendait des mocks
+    allArticles.value = response.data.map(a => ({
+      ...a,
+      image: a.media_url,
+      description: a.summary,
+      date: a.created_at ? a.created_at.split('T')[0] : ''
+    }))
+  } catch (error) {
+    console.error('Erreur lors du chargement des articles:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
 // Articles filtrés par catégorie et recherche
 const filteredArticles = computed(() => {
-  let result = allArticles
+  let result = allArticles.value
   
   // Filtre par catégorie
   if (selectedCategory.value !== 'Tous') {
@@ -133,7 +153,7 @@ const filteredArticles = computed(() => {
     const query = searchQuery.value.toLowerCase()
     result = result.filter(article => 
       article.title.toLowerCase().includes(query) ||
-      article.description.toLowerCase().includes(query) ||
+      (article.description && article.description.toLowerCase().includes(query)) ||
       article.category.toLowerCase().includes(query)
     )
   }
@@ -155,11 +175,11 @@ const hasMore = computed(() => {
 const loadMore = () => {
   isLoading.value = true
   
-  // Simulation d'un délai de chargement
+  // Simulation d'un délai de chargement pour l'UX
   setTimeout(() => {
     currentPage.value++
     isLoading.value = false
-  }, 500)
+  }, 300)
 }
 
 const resetFilters = () => {
@@ -173,9 +193,7 @@ watch([selectedCategory, searchQuery], () => {
 })
 
 // Chargement initial
-onMounted(() => {
-  currentPage.value = 1
-})
+onMounted(fetchArticles)
 </script>
 
 <style scoped>

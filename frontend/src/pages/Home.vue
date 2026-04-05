@@ -50,19 +50,41 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
+import axios from 'axios'
 import Title from '@/components/Title.vue'
 import ArticleCard from '@/components/ArticleCard.vue'
-import { getArticleOfTheDay, getSuggestedArticles, articles } from '@/data/articles.js'
 
-// Données - initialisées directement pour éviter null
-const articleOfTheDay = ref(articles[0])
-const suggestedArticles = ref(getSuggestedArticles(articles[0]?.id))
+// État
+const articleOfTheDay = ref(null)
+const suggestedArticles = ref([])
+const isLoading = ref(true)
 
-// Mise à jour au montage (pour avoir l'article du jour)
-onMounted(() => {
-  articleOfTheDay.value = getArticleOfTheDay()
-  suggestedArticles.value = getSuggestedArticles(articleOfTheDay.value?.id)
-})
+// Chargement des articles depuis l'API
+const fetchHomeContent = async () => {
+  isLoading.value = true
+  try {
+    const response = await axios.get('http://localhost:3001/api/articles')
+    const allArticles = response.data.map(a => ({
+      ...a,
+      image: a.media_url,
+      description: a.summary
+    }))
+    
+    if (allArticles.length > 0) {
+      // Pour l'exercice: on prend le premier comme article du jour
+      articleOfTheDay.value = allArticles[0]
+      // Et les 3 suivants comme suggestions
+      suggestedArticles.value = allArticles.slice(1, 4)
+    }
+  } catch (error) {
+    console.error('Erreur lors du chargement de l\'accueil:', error)
+  } finally {
+    isLoading.value = false
+  }
+}
+
+// Mise à jour au montage
+onMounted(fetchHomeContent)
 </script>
 
 <style scoped>

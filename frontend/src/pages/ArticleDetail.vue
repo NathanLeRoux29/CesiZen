@@ -126,9 +126,9 @@
 <script setup>
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import axios from 'axios'
 import { useUserStore } from '@/stores/user'
 import ArticleCard from '@/components/ArticleCard.vue'
-import { getArticleById, getSuggestedArticles } from '@/data/articles.js'
 
 const route = useRoute()
 const router = useRouter()
@@ -162,14 +162,34 @@ const goBack = () => {
 }
 
 const loadArticle = async () => {
-  const articleId = parseInt(route.params.id)
-  article.value = getArticleById(articleId)
-  
-  if (article.value) {
-    suggestedArticles.value = getSuggestedArticles(article.value.id)
+  const articleId = route.params.id
+  try {
+    const response = await axios.get(`http://localhost:3001/api/articles/${articleId}`)
+    const rawArticle = response.data
+    
+    article.value = {
+      ...rawArticle,
+      image: rawArticle.media_url,
+      description: rawArticle.summary,
+      date: rawArticle.created_at ? rawArticle.created_at.split('T')[0] : ''
+    }
+    
+    // Charger aussi les suggestions depuis l'API
+    const suggestionsResponse = await axios.get('http://localhost:3001/api/articles')
+    suggestedArticles.value = suggestionsResponse.data
+      .filter(a => a.id !== article.value.id)
+      .slice(0, 3)
+      .map(a => ({
+        ...a,
+        image: a.media_url,
+        description: a.summary
+      }))
+
     if (userStore.isLoggedIn) {
       checkFavoriteStatus()
     }
+  } catch (error) {
+    console.error('Erreur lors du chargement de l\'article:', error)
   }
 }
 

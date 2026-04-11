@@ -1,5 +1,5 @@
 CREATE TABLE `users` (
-  `id` integer PRIMARY KEY,
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `username` varchar(255),
   `email` varchar(255),
   `password` varchar(255),
@@ -9,7 +9,7 @@ CREATE TABLE `users` (
 );
 
 CREATE TABLE `articles` (
-  `id` integer PRIMARY KEY,
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `title` varchar(255),
   `summary` varchar(255),
   `content` text,
@@ -20,8 +20,9 @@ CREATE TABLE `articles` (
   `id_category` integer
 );
 
+
 CREATE TABLE `categories` (
-  `id` integer PRIMARY KEY,
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `label` varchar(255)
 );
 
@@ -34,7 +35,7 @@ CREATE TABLE `favorites` (
 );
 
 CREATE TABLE `breath_exercises` (
-  `id` integer PRIMARY KEY,
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `title` varchar(255),
   `breath_in_time` integer,
   `breath_hold_time` integer,
@@ -43,7 +44,7 @@ CREATE TABLE `breath_exercises` (
 );
 
 CREATE TABLE `breath_sessions` (
-  `id` integer PRIMARY KEY,
+  `id` integer PRIMARY KEY AUTO_INCREMENT,
   `duration_minutes` integer,
   `cycles_count` integer,
   `technique_id` varchar(255),

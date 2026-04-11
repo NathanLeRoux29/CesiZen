@@ -1,5 +1,5 @@
 const UserDAO = require('../src/dao/UserDAO');
-const db = require('../config/db');
+const db = require('../src/config/db');
 
 // Mock de la base de données
 jest.mock('../src/config/db');
@@ -43,7 +43,7 @@ describe('UserDAO', () => {
 
             expect(db.query).toHaveBeenCalledWith(
                 expect.stringContaining('INSERT INTO users'),
-                [userData.username, userData.email, userData.password]
+                [userData.username, userData.email, userData.password, false, true, expect.any(Date)]
             );
             expect(result).toBe(10);
         });

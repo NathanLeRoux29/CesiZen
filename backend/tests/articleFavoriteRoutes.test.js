@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../src/app');
 const db = require('../src/config/db');
 
-jest.mock('../config/db');
+jest.mock('../src/config/db');
 
 describe('Article Favorite Routes', () => {
     beforeEach(() => {

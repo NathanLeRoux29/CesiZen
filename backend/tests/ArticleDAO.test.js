@@ -20,7 +20,7 @@ describe('ArticleDAO', () => {
 
             const result = await ArticleDAO.getAllActive();
 
-            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM articles WHERE is_active = 1'));
+            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('WHERE a.is_active = 1'));
             expect(result).toHaveLength(2);
             expect(result[0].title).toBe('Article 1');
         });
@@ -41,7 +41,7 @@ describe('ArticleDAO', () => {
 
             const result = await ArticleDAO.getById(1);
 
-            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('SELECT * FROM articles WHERE id = ?'), [1]);
+            expect(db.query).toHaveBeenCalledWith(expect.stringContaining('WHERE a.id = ?'), [1]);
             expect(result).toEqual(mockArticle);
         });
 

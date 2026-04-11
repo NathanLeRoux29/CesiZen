@@ -1,7 +1,7 @@
 const BreathingFavoriteDAO = require('../src/dao/BreathingFavoriteDAO');
-const db = require('../config/db');
+const db = require('../src/config/db');
 
-jest.mock('../config/db');
+jest.mock('../src/config/db');
 
 describe('BreathingFavoriteDAO', () => {
     beforeEach(() => {
@@ -33,8 +33,8 @@ describe('BreathingFavoriteDAO', () => {
     describe('update', () => {
         it('doit mettre à jour un favori existant', async () => {
             db.query.mockResolvedValue([{ affectedRows: 1 }]);
-            const favoriteData = { id: 1, name: 'Updated', inhale: 5 };
-            const result = await BreathingFavoriteDAO.update(favoriteData);
+            const favoriteData = { name: 'Updated', breath_in: 5 };
+            const result = await BreathingFavoriteDAO.update(1, favoriteData);
             expect(result).toBe(true);
         });
     });

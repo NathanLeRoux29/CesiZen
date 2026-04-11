@@ -1,7 +1,7 @@
 const BreathExerciseDAO = require('../src/dao/BreathExerciseDAO');
-const db = require('../config/db');
+const db = require('../src/config/db');
 
-jest.mock('../config/db');
+jest.mock('../src/config/db');
 
 describe('BreathExerciseDAO', () => {
     beforeEach(() => {

@@ -3,7 +3,7 @@ const app = require('../src/app');
 const db = require('../src/config/db');
 const bcrypt = require('bcrypt');
 
-jest.mock('../config/db');
+jest.mock('../src/config/db');
 jest.mock('bcrypt');
 
 describe('User Routes', () => {
@@ -35,7 +35,7 @@ describe('User Routes', () => {
                 .send({ email: 'test@cesizen.fr', password: 'wrongpassword' });
 
             expect(response.status).toBe(401);
-            expect(response.body.error).toBe('Identifiants invalides');
+            expect(response.body.error).toBe('Email ou mot de passe incorrect');
         });
     });
 

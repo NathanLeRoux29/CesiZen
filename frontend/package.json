@@ -8,9 +8,14 @@
     "build": "vite build",
     "preview": "vite preview",
     "lint": "eslint . --fix",
-    "test": "playwright test"
+    "test": "playwright test",
+    "mobile:build": "npm run build && npx cap sync",
+    "mobile:open": "CAPACITOR_ANDROID_STUDIO_PATH=/home/pommefrite/Documents/Application/android-studio-panda1-patch1-linux/android-studio/bin/studio.sh npx cap open android"
   },
   "dependencies": {
+    "@capacitor/android": "^8.3.0",
+    "@capacitor/cli": "^8.3.0",
+    "@capacitor/core": "^8.3.0",
     "@fontsource/roboto": "5.2.7",
     "@mdi/font": "7.4.47",
     "axios": "^1.14.0",

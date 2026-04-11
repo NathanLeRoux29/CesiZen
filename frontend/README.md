@@ -40,3 +40,21 @@ Assurez-vous que le backend est lancé pour une fonctionnalité complète.
 - `npm run build` : Compile l'application pour la production.
 - `npm run preview` : Prévisualise le build de production.
 - `npm run lint` : Vérifie le code avec ESLint.
+- `npm run test` : Lance les tests fonctionnels Playwright.
+
+## Application Mobile (Capacitor)
+
+Le projet utilise Capacitor pour générer une application mobile.
+
+### Pré-requis
+- Android Studio (configuré dans `package.json`)
+
+### Commandes Mobiles
+- **Préparer le build** : `npm run mobile:build`
+- **Ouvrir Android Studio** : `npm run mobile:open`
+
+### Synchronisation
+Pour synchroniser les changements du code web vers le projet natif :
+```bash
+npm run mobile:build
+```

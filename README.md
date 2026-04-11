@@ -6,7 +6,7 @@ CesiZen est une plateforme web modulaire dédiée au bien-être. Elle propose de
 
 Le projet est divisé en trois parties principales :
 
-- **[`backend/`](./backend)** : API REST Node.js/Express connectée à une base MariaDB/MySQL.
+- **[`backend/`](./backend)** : API REST Node.js/Express connectée à une base MySQL.
 - **[`frontend/`](./frontend)** : Application client en Vue 3 destinée aux utilisateurs finaux.
 - **[`backoffice/`](./backoffice)** : Interface d'administration en Vue 3 pour la gestion du contenu.
 

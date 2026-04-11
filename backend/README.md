@@ -6,14 +6,14 @@ CesiZen est une application de bien-être développée pour le CESI. Ce dépôt 
 
 - **Runtime** : Node.js
 - **Framework** : Express.js
-- **Base de données** : MariaDB / MySQL
-- **Documentation** : Swagger / OpenAPI
-- **Tests** : Jest & Supertest
+- **Base de données** : MySQL
+- **Documentation** : Swagger
+- **Tests** : Jest
 
 ## Prérequis
 
 - [Node.js](https://nodejs.org/) (version 18+)
-- Une base de données MariaDB ou MySQL en cours d'exécution.
+- Une base de données MySQL en cours d'exécution.
 
 ## Installation
 

@@ -483,15 +483,8 @@ const savePassword = async () => {
   passwordError.value = ''
   passwordSuccess.value = ''
 
-  console.log('Token:', userStore.token)
-  console.log('User:', userStore.user)
-
   try {
-    const url = `${import.meta.env.VITE_API_URL}/api/users/password`
-    console.log('URL:', url)
-    console.log('Sending request to:', url)
-
-    const response = await fetch(url, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/password`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
@@ -502,8 +495,6 @@ const savePassword = async () => {
         newPassword: passwordForm.newPassword
       })
     })
-
-    console.log('Response status:', response.status)
 
     const data = await response.json()
 
@@ -517,7 +508,6 @@ const savePassword = async () => {
       closePasswordDialog()
     }, 1500)
   } catch (error) {
-    console.error('Fetch error:', error)
     passwordError.value = 'Erreur de connexion au serveur'
   } finally {
     savingPassword.value = false

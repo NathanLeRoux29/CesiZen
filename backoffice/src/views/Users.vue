@@ -37,6 +37,13 @@
           @click="openEditDialog(item)"
         ></v-btn>
         <v-btn
+          icon="mdi-lock"
+          variant="text"
+          color="warning"
+          size="small"
+          @click="openPasswordDialog(item)"
+        ></v-btn>
+        <v-btn
           icon="mdi-delete"
           variant="text"
           color="error"
@@ -60,6 +67,33 @@
             <v-spacer></v-spacer>
             <v-btn variant="text" @click="editDialog = false">Annuler</v-btn>
             <v-btn color="primary" type="submit" :loading="saving">Enregistrer</v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
+
+    <!-- Dialog de changement de mot de passe -->
+    <v-dialog v-model="passwordDialog" max-width="500">
+      <v-card class="pa-6">
+        <v-card-title class="text-h5 font-weight-bold mb-4">
+          Réinitialiser le mot de passe
+        </v-card-title>
+        <v-card-text class="pa-0 mb-4">
+          Nouveau mot de passe pour <strong>{{ selectedUser?.username }}</strong>
+        </v-card-text>
+        <v-form @submit.prevent="handlePasswordUpdate">
+          <v-text-field
+            v-model="passwordForm.password"
+            label="Nouveau mot de passe"
+            variant="outlined"
+            type="password"
+            :rules="[v => !!v || 'Mot de passe requis', v => v.length >= 8 || 'Minimum 8 caractères']"
+          ></v-text-field>
+
+          <v-card-actions class="pa-0 mt-4">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="passwordDialog = false">Annuler</v-btn>
+            <v-btn color="warning" type="submit" :loading="savingPassword">Enregistrer</v-btn>
           </v-card-actions>
         </v-form>
       </v-card>
@@ -89,6 +123,7 @@ const saving = ref(false)
 const search = ref('')
 const deleteDialog = ref(false)
 const editDialog = ref(false)
+const passwordDialog = ref(false)
 const selectedUser = ref(null)
 
 const form = ref({
@@ -97,6 +132,11 @@ const form = ref({
   is_admin: false,
   is_active: true
 })
+
+const passwordForm = ref({
+  password: ''
+})
+const savingPassword = ref(false)
 
 const headers = [
   { title: 'ID', key: 'id' },
@@ -128,6 +168,27 @@ const openEditDialog = (user) => {
     is_active: !!user.is_active
   }
   editDialog.value = true
+}
+
+const openPasswordDialog = (user) => {
+  selectedUser.value = user
+  passwordForm.value.password = ''
+  passwordDialog.value = true
+}
+
+const handlePasswordUpdate = async () => {
+  if (!passwordForm.value.password || passwordForm.value.password.length < 8) return
+  savingPassword.value = true
+  try {
+    await api.put(`/api/admin/users/${selectedUser.value.id}/password`, {
+      password: passwordForm.value.password
+    })
+    passwordDialog.value = false
+  } catch (error) {
+    console.error(error)
+  } finally {
+    savingPassword.value = false
+  }
 }
 
 const handleUpdate = async () => {

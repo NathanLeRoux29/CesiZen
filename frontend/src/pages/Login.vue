@@ -158,11 +158,11 @@ const handleSubmit = async () => {
   isLoading.value = true
   errorMessage.value = ''
 
-  const url = isRegisterMode.value 
-    ? `${import.meta.env.VITE_API_URL}/api/users/register` 
+  const url = isRegisterMode.value
+    ? `${import.meta.env.VITE_API_URL}/api/users/register`
     : `${import.meta.env.VITE_API_URL}/api/users/login`
-    
-  const payload = isRegisterMode.value 
+
+  const payload = isRegisterMode.value
     ? { email: email.value, username: username.value, password: password.value }
     : { email: email.value, password: password.value }
 
@@ -177,17 +177,16 @@ const handleSubmit = async () => {
 
     if (response.ok) {
       if (isRegisterMode.value) {
-        // Après inscription, on bascule en login ou on connecte directement
         isRegisterMode.value = false
         errorMessage.value = 'Compte créé ! Vous pouvez vous connecter.'
       } else {
-        // Connexion réussie
         userStore.login({
+          token: data.token,
           id: data.user.id,
-          name: data.user.username, // On mappe username sur name pour le store
+          name: data.user.username,
           email: data.user.email,
           avatar: data.user.avatar || 'https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200',
-          stats: data.user.stats || {
+          stats: {
             articlesViewed: 0,
             favoritesCount: 0,
             breathingExercises: 0

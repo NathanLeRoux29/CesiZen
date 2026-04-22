@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const AdminController = require('../controllers/AdminController');
+const { authMiddleware, adminMiddleware } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -8,6 +9,9 @@ const AdminController = require('../controllers/AdminController');
  *   name: Admin
  *   description: Gestion administrative (Utilisateurs et Articles)
  */
+
+// Toutes les routes admin nécessitent une authentification ET le rôle admin
+router.use(authMiddleware, adminMiddleware);
 
 // Gestion des Utilisateurs
 router.get('/users', AdminController.getUsers);

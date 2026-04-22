@@ -15,6 +15,7 @@ dist/
 *.sln
 *.sw?
 android/
+.env
 
 # Environment Variables
 .env

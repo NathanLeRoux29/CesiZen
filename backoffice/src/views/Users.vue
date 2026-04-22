@@ -110,7 +110,7 @@ const headers = [
 const fetchUsers = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:3001/api/admin/users')
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`)
     users.value = response.data
   } catch (error) {
     console.error(error)
@@ -133,7 +133,7 @@ const openEditDialog = (user) => {
 const handleUpdate = async () => {
   saving.value = true
   try {
-    await axios.put(`http://localhost:3001/api/admin/users/${selectedUser.value.id}`, form.value)
+    await axios.put(`${import.meta.env.VITE_API_URL}/api/admin/users/${selectedUser.value.id}`, form.value)
     await fetchUsers()
     editDialog.value = false
   } catch (error) {
@@ -150,7 +150,7 @@ const confirmDelete = (user) => {
 
 const handleDelete = async () => {
   try {
-    await axios.delete(`http://localhost:3001/api/admin/users/${selectedUser.value.id}`)
+    await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${selectedUser.value.id}`)
     await fetchUsers()
     deleteDialog.value = false
   } catch (error) {

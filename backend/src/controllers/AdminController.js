@@ -1,5 +1,5 @@
 const UserDAO = require('../dao/UserDAO');
-console.log('--- LOADING AdminController.js ---');
+const logger = require('../utils/logger');
 const ArticleDAO = require('../dao/ArticleDAO');
 
 /**
@@ -11,9 +11,10 @@ class AdminController {
     static async getUsers(req, res) {
         try {
             const users = await UserDAO.getAll();
+            logger.info('AdminController', 'Récupération de tous les utilisateurs', { count: users.length });
             res.json(users);
         } catch (error) {
-            console.error('AdminController.getUsers:', error);
+            logger.error('AdminController', 'Erreur lors de la récupération des utilisateurs', error);
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
@@ -22,9 +23,10 @@ class AdminController {
         try {
             const { id } = req.params;
             await UserDAO.delete(id);
+            logger.info('AdminController', 'Utilisateur supprimé', { userId: id });
             res.json({ message: 'Utilisateur supprimé' });
         } catch (error) {
-            console.error('AdminController.deleteUser:', error);
+            logger.error('AdminController', 'Erreur lors de la suppression d\'un utilisateur', error, { userId: id });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
@@ -33,9 +35,10 @@ class AdminController {
         try {
             const { id } = req.params;
             await UserDAO.update(id, req.body);
+            logger.info('AdminController', 'Utilisateur mis à jour', { userId: id });
             res.json({ message: 'Utilisateur mis à jour' });
         } catch (error) {
-            console.error('AdminController.updateUser:', error);
+            logger.error('AdminController', 'Erreur lors de la mise à jour d\'un utilisateur', error, { userId: id });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
@@ -45,9 +48,10 @@ class AdminController {
     static async createArticle(req, res) {
         try {
             const articleId = await ArticleDAO.create(req.body);
+            logger.info('AdminController', 'Article créé', { articleId });
             res.status(201).json({ id: articleId, message: 'Article créé' });
         } catch (error) {
-            console.error('AdminController.createArticle:', error);
+            logger.error('AdminController', 'Erreur lors de la création d\'un article', error);
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
@@ -56,9 +60,10 @@ class AdminController {
         try {
             const { id } = req.params;
             await ArticleDAO.update(id, req.body);
+            logger.info('AdminController', 'Article mis à jour', { articleId: id });
             res.json({ message: 'Article mis à jour' });
         } catch (error) {
-            console.error('AdminController.updateArticle:', error);
+            logger.error('AdminController', 'Erreur lors de la mise à jour d\'un article', error, { articleId: id });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
@@ -67,9 +72,10 @@ class AdminController {
         try {
             const { id } = req.params;
             await ArticleDAO.delete(id);
+            logger.info('AdminController', 'Article supprimé', { articleId: id });
             res.json({ message: 'Article supprimé' });
         } catch (error) {
-            console.error('AdminController.deleteArticle:', error);
+            logger.error('AdminController', 'Erreur lors de la suppression d\'un article', error, { articleId: id });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }

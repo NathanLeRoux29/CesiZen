@@ -63,7 +63,7 @@ const isLoading = ref(true)
 const fetchHomeContent = async () => {
   isLoading.value = true
   try {
-    const response = await axios.get('http://localhost:3001/api/articles')
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
     const allArticles = response.data.map(a => ({
       ...a,
       image: a.media_url,

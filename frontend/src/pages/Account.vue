@@ -376,7 +376,7 @@ const fetchFavorites = async () => {
   if (!userStore.isLoggedIn) return
   loadingFavorites.value = true
   try {
-    const response = await fetch(`http://localhost:3001/api/favorites/articles/user/${userStore.user.id}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/user/${userStore.user.id}`)
     const data = await response.json()
     favoriteArticles.value = data
     // Optionnel: Mettre à jour le compteur du store

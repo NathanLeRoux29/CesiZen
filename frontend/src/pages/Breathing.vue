@@ -373,7 +373,7 @@ const fetchFavorites = async () => {
   if (!userStore.isLoggedIn || !currentUserId.value) return
   
   try {
-    const response = await fetch(`http://localhost:3001/api/breathing/favorites/${currentUserId.value}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/breathing/favorites/${currentUserId.value}`)
     if (response.ok) {
       favorites.value = await response.json()
     }
@@ -425,8 +425,8 @@ const saveConfig = async () => {
   try {
     const isUpdate = !!selectedFavorite.value
     const url = isUpdate 
-      ? `http://localhost:3001/api/breathing/favorites/${selectedFavorite.value.id}`
-      : 'http://localhost:3001/api/breathing/favorites'
+      ? `${import.meta.env.VITE_API_URL}/api/breathing/favorites/${selectedFavorite.value.id}`
+      : `${import.meta.env.VITE_API_URL}/api/breathing/favorites`
       
     const payload = {
       user_id: currentUserId.value,
@@ -469,7 +469,7 @@ const saveConfig = async () => {
 
 const deleteFavorite = async (id) => {
   try {
-    const response = await fetch(`http://localhost:3001/api/breathing/favorites/${id}`, {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/breathing/favorites/${id}`, {
       method: 'DELETE'
     })
     if (response.ok) {

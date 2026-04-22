@@ -16,6 +16,30 @@ Le projet est divisé en trois parties principales :
 - **NPM** (livré avec Node.js)
 - **MariaDB** ou **MySQL**
 
+## Configuration de la Base de Données
+
+### 1. Créer la base et l'utilisateur
+
+```sql
+CREATE DATABASE IF NOT EXISTS cesizen CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE USER 'cesizen_user'@'localhost' IDENTIFIED BY 'votre_mot_de_passe';
+GRANT ALL PRIVILEGES ON cesizen.* TO 'cesizen_user'@'localhost';
+FLUSH PRIVILEGES;
+```
+
+### 2. Importer le schéma
+
+```bash
+mysql -u cesizen_user -p cesizen < backend/sql/cesizen.sql
+```
+
+Ou depuis MySQL/MariaDB :
+
+```sql
+USE cesizen;
+SOURCE backend/sql/cesizen.sql;
+```
+
 ## Installation Rapide
 
 Pour installer et lancer le projet complet localement :

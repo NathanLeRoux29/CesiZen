@@ -99,8 +99,15 @@ export const useUserStore = defineStore('user', () => {
         user.value.stats.breathingExercises++
     }
 
-    const deleteAccount = () => {
-        logout()
+    const deleteAccount = async () => {
+        try {
+            await api.delete('/users/account')
+        } catch (error) {
+            console.error('Erreur suppression compte:', error)
+            throw error
+        } finally {
+            logout()
+        }
     }
 
     return {

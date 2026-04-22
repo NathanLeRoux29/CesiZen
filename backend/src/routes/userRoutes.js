@@ -109,4 +109,20 @@ router.put('/profile', authMiddleware, AuthController.updateProfile);
  */
 router.put('/password', authMiddleware, AuthController.updatePassword);
 
+/**
+ * @swagger
+ * /api/users/account:
+ *   delete:
+ *     summary: Supprime le compte de l'utilisateur connecté
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Compte supprimé
+ *       401:
+ *         description: Non autorisé
+ */
+router.delete('/account', authMiddleware, AuthController.deleteAccount);
+
 module.exports = router;

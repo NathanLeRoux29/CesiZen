@@ -70,7 +70,7 @@ const router = useRouter()
 const authStore = useAuthStore()
 
 const handleLogin = async () => {
-  loading.ref = true
+  loading.value = true
   error.value = ''
   try {
     await authStore.login(email.value, password.value)

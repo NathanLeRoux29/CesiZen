@@ -373,7 +373,9 @@ const fetchFavorites = async () => {
   if (!userStore.isLoggedIn || !currentUserId.value) return
   
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/breathing/favorites/${currentUserId.value}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/breathing/favorites/${currentUserId.value}`, {
+      headers: { 'Authorization': `Bearer ${userStore.token}` }
+    })
     if (response.ok) {
       favorites.value = await response.json()
     }
@@ -441,7 +443,10 @@ const saveConfig = async () => {
 
     const response = await fetch(url, {
       method: isUpdate ? 'PUT' : 'POST',
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}`
+      },
       body: JSON.stringify(payload)
     })
 
@@ -470,7 +475,8 @@ const saveConfig = async () => {
 const deleteFavorite = async (id) => {
   try {
     const response = await fetch(`${import.meta.env.VITE_API_URL}/api/breathing/favorites/${id}`, {
-      method: 'DELETE'
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${userStore.token}` }
     })
     if (response.ok) {
       await fetchFavorites()

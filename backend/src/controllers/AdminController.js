@@ -1,4 +1,5 @@
 const UserDAO = require('../dao/UserDAO');
+const bcrypt = require('bcrypt');
 const logger = require('../utils/logger');
 const ArticleDAO = require('../dao/ArticleDAO');
 
@@ -45,6 +46,25 @@ class AdminController {
             res.json({ message: 'Utilisateur mis à jour' });
         } catch (error) {
             logger.error('AdminController', 'Erreur lors de la mise à jour d\'un utilisateur', error, { userId: req.params.id });
+            res.status(500).json({ error: 'Erreur serveur' });
+        }
+    }
+
+    static async updateUserPassword(req, res) {
+        try {
+            const id = parseInt(req.params.id, 10);
+            const { password } = req.body;
+
+            if (!password) {
+                return res.status(400).json({ error: 'Mot de passe requis' });
+            }
+
+            const hashedPassword = await bcrypt.hash(password, 10);
+            await UserDAO.updatePassword(id, hashedPassword);
+            logger.info('AdminController', 'Mot de passe utilisateur mis à jour', { userId: id });
+            res.json({ message: 'Mot de passe mis à jour' });
+        } catch (error) {
+            logger.error('AdminController', 'Erreur lors de la mise à jour du mot de passe', error, { userId: req.params.id });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }

@@ -195,7 +195,9 @@ const loadArticle = async () => {
 
 const checkFavoriteStatus = async () => {
   try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`, {
+      headers: { 'Authorization': `Bearer ${userStore.token}` }
+    })
     const data = await response.json()
     isFavorite.value = data.isFavorite
   } catch (e) {
@@ -213,7 +215,10 @@ const toggleFavorite = async () => {
   try {
     const response = await fetch(url, {
       method,
-      headers: { 'Content-Type': 'application/json' },
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${userStore.token}`
+      },
       body: method === 'POST' ? JSON.stringify({ userId: userStore.user.id, articleId: article.value.id }) : null
     })
     

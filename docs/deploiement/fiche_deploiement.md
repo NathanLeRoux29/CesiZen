@@ -52,15 +52,17 @@ Créer un fichier `.env` (ou copier `.env.example`) dans chaque projet :
 
 **frontend/.env**
 ```env
+VITE_PORT=3000
 VITE_API_URL=http://localhost:3001
 ```
 
 **backoffice/.env**
 ```env
+VITE_PORT=5173
 VITE_API_URL=http://localhost:3001
 ```
 
-En production, remplacez `http://localhost:3001` par l'URL de votre serveur backend.
+En production, remplacez `http://localhost:3001` par l'URL de votre serveur backend. Modifiez `VITE_PORT` pour changer le port d'exécution.
 
 ## 5) Ports utilisés
 

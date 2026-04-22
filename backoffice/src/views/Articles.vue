@@ -104,7 +104,7 @@ const headers = [
 const fetchArticles = async () => {
   loading.value = true
   try {
-    const response = await axios.get('http://localhost:3001/api/articles')
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
     articles.value = response.data
   } catch (error) {
     console.error(error)
@@ -135,9 +135,9 @@ const saveArticle = async () => {
   saving.value = true
   try {
     if (editedId.value) {
-      await axios.put(`http://localhost:3001/api/admin/articles/${editedId.value}`, form.value)
+      await axios.put(`${import.meta.env.VITE_API_URL}/api/admin/articles/${editedId.value}`, form.value)
     } else {
-      await axios.post('http://localhost:3001/api/admin/articles', form.value)
+      await axios.post(`${import.meta.env.VITE_API_URL}/api/admin/articles`, form.value)
     }
     await fetchArticles()
     dialog.value = false
@@ -151,7 +151,7 @@ const saveArticle = async () => {
 const handleDelete = async (id) => {
   if (confirm('Supprimer cet article ?')) {
     try {
-      await axios.delete(`http://localhost:3001/api/admin/articles/${id}`)
+      await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/articles/${id}`)
       await fetchArticles()
     } catch (error) {
       console.error(error)

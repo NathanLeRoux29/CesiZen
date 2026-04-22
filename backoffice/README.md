@@ -33,6 +33,23 @@ CesiZen Backoffice est l'interface d'administration permettant de gérer le cont
 
 Pour vous connecter au backoffice, utilisez un compte utilisateur ayant le flag `is_admin` à `1` dans la base de données.
 
+## Configuration
+
+L'application communique avec le backend via l'URL définie dans la variable d'environnement `VITE_API_URL`.
+
+### Variables d'environnement
+
+Créez un fichier `.env` à la racine du projet (ou copiez `.env.example`) :
+
+```env
+VITE_API_URL=http://localhost:3001
+```
+
+Pour une configuration en production :
+```env
+VITE_API_URL=https://votre-serveur.com
+```
+
 ## Scripts Disponibles
 
 - `npm run dev` : Lance l'application en mode développement.

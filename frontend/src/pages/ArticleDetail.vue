@@ -164,7 +164,7 @@ const goBack = () => {
 const loadArticle = async () => {
   const articleId = route.params.id
   try {
-    const response = await axios.get(`http://localhost:3001/api/articles/${articleId}`)
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles/${articleId}`)
     const rawArticle = response.data
     
     article.value = {
@@ -175,7 +175,7 @@ const loadArticle = async () => {
     }
     
     // Charger aussi les suggestions depuis l'API
-    const suggestionsResponse = await axios.get('http://localhost:3001/api/articles')
+    const suggestionsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
     suggestedArticles.value = suggestionsResponse.data
       .filter(a => a.id !== article.value.id)
       .slice(0, 3)
@@ -195,7 +195,7 @@ const loadArticle = async () => {
 
 const checkFavoriteStatus = async () => {
   try {
-    const response = await fetch(`http://localhost:3001/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`)
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`)
     const data = await response.json()
     isFavorite.value = data.isFavorite
   } catch (e) {
@@ -208,7 +208,7 @@ const toggleFavorite = async () => {
   isFavoriteLoading.value = true
   
   const method = isFavorite.value ? 'DELETE' : 'POST'
-  const url = `http://localhost:3001/api/favorites/articles${method === 'DELETE' ? `?userId=${userStore.user.id}&articleId=${article.value.id}` : ''}`
+  const url = `${import.meta.env.VITE_API_URL}/api/favorites/articles${method === 'DELETE' ? `?userId=${userStore.user.id}&articleId=${article.value.id}` : ''}`
   
   try {
     const response = await fetch(url, {

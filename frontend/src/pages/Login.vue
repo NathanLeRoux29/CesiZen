@@ -159,8 +159,8 @@ const handleSubmit = async () => {
   errorMessage.value = ''
 
   const url = isRegisterMode.value 
-    ? 'http://localhost:3001/api/users/register' 
-    : 'http://localhost:3001/api/users/login'
+    ? `${import.meta.env.VITE_API_URL}/api/users/register` 
+    : `${import.meta.env.VITE_API_URL}/api/users/login`
     
   const payload = isRegisterMode.value 
     ? { email: email.value, username: username.value, password: password.value }

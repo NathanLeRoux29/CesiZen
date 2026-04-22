@@ -124,7 +124,7 @@ const isLoading = ref(false)
 const fetchArticles = async () => {
   isLoading.value = true
   try {
-    const response = await axios.get('http://localhost:3001/api/articles')
+    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
     // On mappe les champs pour correspondre à ce que le front attendait des mocks
     allArticles.value = response.data.map(a => ({
       ...a,

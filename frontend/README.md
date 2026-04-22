@@ -27,12 +27,26 @@ CesiZen Frontend est l'interface utilisateur de l'application de bien-être, des
    npm run dev
    ```
 
-3. L'application est accessible à l'adresse : [http://localhost:3000](http://localhost:3000) (ou le port indiqué par Vite).
+3. L'application est accessible à l'adresse : [http://localhost:5173](http://localhost:5173) (ou le port indiqué par Vite).
 
 ## Configuration
 
-L'application communique avec le backend via `http://localhost:3001/api`.
-Assurez-vous que le backend est lancé pour une fonctionnalité complète.
+L'application communique avec le backend via l'URL définie dans la variable d'environnement `VITE_API_URL`.
+
+### Variables d'environnement
+
+Créez un fichier `.env` à la racine du projet (ou copiez `.env.example`) :
+
+```env
+VITE_API_URL=http://localhost:3001
+```
+
+Pour une configuration en production :
+```env
+VITE_API_URL=https://votre-serveur.com
+```
+
+Assurez-vous que le backend est lancé et que l'URL de l'API est correcte pour une fonctionnalité complète.
 
 ## Scripts Disponibles
 

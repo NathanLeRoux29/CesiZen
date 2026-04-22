@@ -9,7 +9,7 @@ export const useAuthStore = defineStore('auth', {
   actions: {
     async login(email, password) {
       try {
-        const response = await axios.post('http://localhost:3001/api/users/login', { email, password })
+        const response = await axios.post(`${import.meta.env.VITE_API_URL}/api/users/login`, { email, password })
         const user = response.data.user
         
         if (!user.is_admin) {

@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "lint": "eslint . --fix",
     "test": "playwright test",
-    "mobile:build": "npm run build && npx cap sync",
+    "deploy": "npm install && npm run build && npx -y serve dist",
+    "mobile:build": "npm run build && npx cap add android || npx cap sync android",
     "mobile:open": "CAPACITOR_ANDROID_STUDIO_PATH=/home/pommefrite/Documents/Application/android-studio-panda1-patch1-linux/android-studio/bin/studio.sh npx cap open android"
   },
   "dependencies": {

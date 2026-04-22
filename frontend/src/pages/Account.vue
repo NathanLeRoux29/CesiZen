@@ -38,7 +38,7 @@
               color="primary"
               variant="outlined"
               rounded="lg"
-              @click="editDialog = true"
+              @click="openEditDialog"
             >
               <v-icon start>mdi-pencil</v-icon>
               Modifier
@@ -335,6 +335,13 @@ const editForm = reactive({
   avatar: ''
 })
 
+// Ouvrir le dialog d'édition avec les données pré-remplies
+const openEditDialog = () => {
+  editForm.name = userStore.user.name
+  editForm.email = userStore.user.email
+  editDialog.value = true
+}
+
 // Gestion de la déconnexion
 const handleLogout = () => {
   userStore.logout()
@@ -342,16 +349,18 @@ const handleLogout = () => {
 }
 
 // Sauvegarder le profil
-const saveProfile = () => {
+const saveProfile = async () => {
   if (!editFormValid.value) return
-  
-  userStore.updateUser({
-    name: editForm.name,
-    email: editForm.email,
-    avatar: editForm.avatar
-  })
-  
-  editDialog.value = false
+
+  try {
+    await userStore.updateUser({
+      name: editForm.name,
+      email: editForm.email
+    })
+    editDialog.value = false
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde:', error)
+  }
 }
 
 // Confirmer la suppression du compte

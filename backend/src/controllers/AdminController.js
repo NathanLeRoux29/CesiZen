@@ -33,12 +33,18 @@ class AdminController {
 
     static async updateUser(req, res) {
         try {
-            const { id } = req.params;
-            await UserDAO.update(id, req.body);
+            const id = parseInt(req.params.id, 10);
+            const { username, email, is_admin, is_active } = req.body;
+            await UserDAO.update(id, {
+                username,
+                email,
+                is_admin: is_admin === true || is_admin === 'true',
+                is_active: is_active === true || is_active === 'true'
+            });
             logger.info('AdminController', 'Utilisateur mis à jour', { userId: id });
             res.json({ message: 'Utilisateur mis à jour' });
         } catch (error) {
-            logger.error('AdminController', 'Erreur lors de la mise à jour d\'un utilisateur', error, { userId: id });
+            logger.error('AdminController', 'Erreur lors de la mise à jour d\'un utilisateur', error, { userId: req.params.id });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }

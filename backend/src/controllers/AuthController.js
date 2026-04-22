@@ -1,4 +1,6 @@
 const AuthService = require('../service/AuthService');
+const UserDAO = require('../dao/UserDAO');
+const AuthDao = require('../dao/AuthDao');
 const logger = require('../utils/logger');
 
 /**
@@ -70,6 +72,38 @@ class AuthController {
             }
             logger.error('AuthController', 'Erreur lors de l\'enregistrement', error, { email: req.body.email });
             res.status(500).json({ error: 'Erreur serveur lors de la création de l\'utilisateur' });
+        }
+    }
+
+    /**
+     * PUT /api/users/profile
+     * Met à jour le profil de l'utilisateur connecté.
+     */
+    static async updateProfile(req, res) {
+        try {
+            const userId = req.user.id;
+            const { username, email } = req.body;
+
+            if (!username || !email) {
+                return res.status(400).json({ error: 'Nom d\'utilisateur et email requis' });
+            }
+
+            await UserDAO.update(userId, { username, email });
+            const updatedUser = await AuthDao.getById(userId);
+
+            res.json({
+                message: 'Profil mis à jour',
+                user: {
+                    id: updatedUser.id,
+                    username: updatedUser.username,
+                    email: updatedUser.email,
+                    is_admin: updatedUser.is_admin,
+                    is_active: updatedUser.is_active
+                }
+            });
+        } catch (error) {
+            logger.error('AuthController', 'Erreur lors de la mise à jour du profil', error, { userId: req.user?.id });
+            res.status(500).json({ error: 'Erreur serveur lors de la mise à jour du profil' });
         }
     }
 }

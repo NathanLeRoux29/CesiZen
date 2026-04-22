@@ -55,4 +55,31 @@ router.post('/login', AuthController.login);
  */
 router.post('/register', AuthController.register);
 
+/**
+ * @swagger
+ * /api/users/profile:
+ *   put:
+ *     summary: Met à jour le profil de l'utilisateur connecté
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               username:
+ *                 type: string
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Profil mis à jour
+ *       401:
+ *         description: Non autorisé
+ */
+router.put('/profile', authMiddleware, AuthController.updateProfile);
+
 module.exports = router;

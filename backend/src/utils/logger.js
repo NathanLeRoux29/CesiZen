@@ -39,7 +39,7 @@ const createLogger = (name, level = 'info') => {
 
 const logger = {
     app: createLogger('app', logLevels.app),
-    error: createLogger('error', logLevels.error),
+    errorLogger: createLogger('error', logLevels.error),
     request: createLogger('request', logLevels.request),
     warning: createLogger('warning', logLevels.warning),
     debug: createLogger('debug', logLevels.debug),
@@ -50,7 +50,7 @@ const logger = {
 
     error: (module, message, error = null, data = {}) => {
         const errorData = error ? { error: error.message, stack: error.stack, ...data } : data;
-        logger.error.error({ module, ...errorData }, message);
+        logger.errorLogger.error({ module, ...errorData }, message);
     },
 
     warn: (module, message, data = {}) => {

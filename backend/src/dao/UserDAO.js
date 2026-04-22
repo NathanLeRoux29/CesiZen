@@ -52,6 +52,16 @@ class UserDAO {
             [username, email, is_admin, is_active, id]
         );
     }
+
+    /**
+     * Met à jour le mot de passe d'un utilisateur.
+     */
+    static async updatePassword(id, hashedPassword) {
+        await db.query(
+            'UPDATE users SET password = ? WHERE id = ?',
+            [hashedPassword, id]
+        );
+    }
 }
 
 module.exports = UserDAO;

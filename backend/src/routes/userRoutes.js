@@ -82,4 +82,31 @@ router.post('/register', AuthController.register);
  */
 router.put('/profile', authMiddleware, AuthController.updateProfile);
 
+/**
+ * @swagger
+ * /api/users/password:
+ *   put:
+ *     summary: Met à jour le mot de passe de l'utilisateur connecté
+ *     tags: [Auth]
+ *     security:
+ *       - bearerAuth: []
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               currentPassword:
+ *                 type: string
+ *               newPassword:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Mot de passe mis à jour
+ *       400:
+ *         description: Mot de passe actuel incorrect
+ */
+router.put('/password', authMiddleware, AuthController.updatePassword);
+
 module.exports = router;

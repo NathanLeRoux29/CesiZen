@@ -40,6 +40,19 @@ class AuthDao {
         );
         return rows.length > 0 ? rows[0] : null;
     }
+
+    /**
+     * Récupère un utilisateur par son ID (avec mot de passe).
+     * @param {number} id
+     * @returns {Promise<Object|null>}
+     */
+    static async getByIdWithPassword(id) {
+        const [rows] = await db.query(
+            'SELECT id, username, email, password, is_admin, is_active, created_at FROM users WHERE id = ?',
+            [id]
+        );
+        return rows.length > 0 ? rows[0] : null;
+    }
 }
 
 module.exports = AuthDao;

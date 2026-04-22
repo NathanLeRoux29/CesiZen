@@ -71,9 +71,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore } from '../stores/auth'
-
-const authStore = useAuthStore()
+import { api } from '../stores/auth'
 
 const articles = ref([])
 const categories = [
@@ -106,7 +104,7 @@ const headers = [
 const fetchArticles = async () => {
   loading.value = true
   try {
-    const response = await authStore.api.get('/api/articles')
+    const response = await api.get('/api/articles')
     articles.value = response.data
   } catch (error) {
     console.error(error)
@@ -137,9 +135,9 @@ const saveArticle = async () => {
   saving.value = true
   try {
     if (editedId.value) {
-      await authStore.api.put(`/api/admin/articles/${editedId.value}`, form.value)
+      await api.put(`/api/admin/articles/${editedId.value}`, form.value)
     } else {
-      await authStore.api.post('/api/admin/articles', form.value)
+      await api.post('/api/admin/articles', form.value)
     }
     await fetchArticles()
     dialog.value = false
@@ -153,7 +151,7 @@ const saveArticle = async () => {
 const handleDelete = async (id) => {
   if (confirm('Supprimer cet article ?')) {
     try {
-      await authStore.api.delete(`/api/admin/articles/${id}`)
+      await api.delete(`/api/admin/articles/${id}`)
       await fetchArticles()
     } catch (error) {
       console.error(error)

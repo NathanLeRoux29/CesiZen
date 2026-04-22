@@ -81,9 +81,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { useAuthStore } from '../stores/auth'
-
-const authStore = useAuthStore()
+import { api } from '../stores/auth'
 
 const users = ref([])
 const loading = ref(false)
@@ -112,7 +110,7 @@ const headers = [
 const fetchUsers = async () => {
   loading.value = true
   try {
-    const response = await authStore.api.get('/api/admin/users')
+    const response = await api.get('/api/admin/users')
     users.value = response.data
   } catch (error) {
     console.error(error)
@@ -135,7 +133,7 @@ const openEditDialog = (user) => {
 const handleUpdate = async () => {
   saving.value = true
   try {
-    await authStore.api.put(`/api/admin/users/${selectedUser.value.id}`, form.value)
+    await api.put(`/api/admin/users/${selectedUser.value.id}`, form.value)
     await fetchUsers()
     editDialog.value = false
   } catch (error) {
@@ -152,7 +150,7 @@ const confirmDelete = (user) => {
 
 const handleDelete = async () => {
   try {
-    await authStore.api.delete(`/api/admin/users/${selectedUser.value.id}`)
+    await api.delete(`/api/admin/users/${selectedUser.value.id}`)
     await fetchUsers()
     deleteDialog.value = false
   } catch (error) {

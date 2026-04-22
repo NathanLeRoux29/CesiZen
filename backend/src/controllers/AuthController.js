@@ -140,6 +140,21 @@ class AuthController {
             res.status(500).json({ error: 'Erreur serveur lors de la mise à jour du mot de passe' });
         }
     }
+
+    /**
+     * DELETE /api/users/account
+     * Supprime le compte de l'utilisateur connecté.
+     */
+    static async deleteAccount(req, res) {
+        try {
+            const userId = req.user.id;
+            await UserDAO.delete(userId);
+            res.json({ message: 'Compte supprimé avec succès' });
+        } catch (error) {
+            logger.error('AuthController', 'Erreur lors de la suppression du compte', error, { userId: req.user?.id });
+            res.status(500).json({ error: 'Erreur serveur lors de la suppression du compte' });
+        }
+    }
 }
 
 module.exports = AuthController;

@@ -1,10 +1,18 @@
 const request = require('supertest');
 const app = require('../src/app');
 const db = require('../src/config/db');
+const { generateToken } = require('../src/utils/jwt');
 
 jest.mock('../src/config/db');
 
 describe('Article Favorite Routes', () => {
+    let authToken;
+
+    beforeAll(() => {
+        const mockUser = { id: 1, email: 'test@example.com', is_admin: false };
+        authToken = generateToken(mockUser);
+    });
+
     beforeEach(() => {
         jest.clearAllMocks();
     });
@@ -16,6 +24,7 @@ describe('Article Favorite Routes', () => {
 
             const response = await request(app)
                 .post('/api/favorites/articles')
+                .set('Authorization', `Bearer ${authToken}`)
                 .send({ userId: 1, articleId: 5 });
 
             expect(response.status).toBe(201);
@@ -27,6 +36,7 @@ describe('Article Favorite Routes', () => {
 
             const response = await request(app)
                 .post('/api/favorites/articles')
+                .set('Authorization', `Bearer ${authToken}`)
                 .send({ userId: 1, articleId: 5 });
 
             expect(response.status).toBe(409);
@@ -38,7 +48,9 @@ describe('Article Favorite Routes', () => {
             const mockArticles = [{ id: 5, title: 'Article 5' }];
             db.query.mockResolvedValue([mockArticles]);
 
-            const response = await request(app).get('/api/favorites/articles/user/1');
+            const response = await request(app)
+                .get('/api/favorites/articles/user/1')
+                .set('Authorization', `Bearer ${authToken}`);
 
             expect(response.status).toBe(200);
             expect(response.body).toEqual(mockArticles);

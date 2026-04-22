@@ -1,12 +1,19 @@
 const express = require('express');
 const cors = require('cors');
+const logger = require('./utils/logger');
 require('dotenv').config();
 
 const app = express();
 const { swaggerUi, specs } = require('./config/swagger');
 
-app.use(cors()); 
-app.use(express.json()); 
+app.use(cors());
+app.use(express.json());
+
+// Middleware de logging des requêtes HTTP
+app.use((req, res, next) => {
+    logger.logRequest(req);
+    next();
+}); 
 
 /**
  * Documentation Swagger accessible via /api-docs

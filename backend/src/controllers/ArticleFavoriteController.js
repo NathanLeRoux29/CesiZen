@@ -1,4 +1,5 @@
 const ArticleFavoriteDAO = require('../dao/ArticleFavoriteDAO');
+const logger = require('../utils/logger');
 
 /**
  * Contrôleur pour les Favoris d'Articles.
@@ -11,65 +12,61 @@ class ArticleFavoriteController {
         try {
             const { userId, articleId } = req.body;
             if (!userId || !articleId) {
+                logger.warn('ArticleFavoriteController', 'Paramètres manquants pour ajouter aux favoris');
                 return res.status(400).json({ error: 'userId et articleId sont requis' });
             }
-            
-            // Éviter les doublons
+
             const exists = await ArticleFavoriteDAO.isFavorite(userId, articleId);
             if (exists) {
+                logger.warn('ArticleFavoriteController', 'Article déjà en favori', { userId, articleId });
                 return res.status(409).json({ error: 'L\'article est déjà en favori' });
             }
 
             await ArticleFavoriteDAO.add(userId, articleId);
+            logger.info('ArticleFavoriteController', 'Article ajouté aux favoris', { userId, articleId });
             res.status(201).json({ message: 'Article ajouté aux favoris' });
         } catch (error) {
-            console.error('Erreur ArticleFavoriteController.add:', error);
+            logger.error('ArticleFavoriteController', 'Erreur lors de l\'ajout aux favoris', error, { userId, articleId });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
 
-    /**
-     * Supprime un article des favoris.
-     */
     static async remove(req, res) {
         try {
-            const { userId, articleId } = req.query; // On peut passer par query ou params
+            const { userId, articleId } = req.query;
             if (!userId || !articleId) {
+                logger.warn('ArticleFavoriteController', 'Paramètres manquants pour retirer des favoris');
                 return res.status(400).json({ error: 'userId et articleId sont requis' });
             }
 
             await ArticleFavoriteDAO.remove(userId, articleId);
+            logger.info('ArticleFavoriteController', 'Article retiré des favoris', { userId, articleId });
             res.json({ message: 'Article retiré des favoris' });
         } catch (error) {
-            console.error('Erreur ArticleFavoriteController.remove:', error);
+            logger.error('ArticleFavoriteController', 'Erreur lors du retrait des favoris', error, { userId, articleId });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
 
-    /**
-     * Récupère les articles favoris d'un utilisateur.
-     */
     static async getByUser(req, res) {
         try {
             const { userId } = req.params;
             const favorites = await ArticleFavoriteDAO.getByUser(userId);
+            logger.info('ArticleFavoriteController', 'Favoris récupérés', { userId, count: favorites.length });
             res.json(favorites);
         } catch (error) {
-            console.error('Erreur ArticleFavoriteController.getByUser:', error);
+            logger.error('ArticleFavoriteController', 'Erreur lors de la récupération des favoris', error, { userId });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }
 
-    /**
-     * Vérifie si un article est en favori.
-     */
     static async check(req, res) {
         try {
             const { userId, articleId } = req.query;
             const isFavorite = await ArticleFavoriteDAO.isFavorite(userId, articleId);
             res.json({ isFavorite });
         } catch (error) {
-            console.error('Erreur ArticleFavoriteController.check:', error);
+            logger.error('ArticleFavoriteController', 'Erreur lors de la vérification du favori', error, { userId, articleId });
             res.status(500).json({ error: 'Erreur serveur' });
         }
     }

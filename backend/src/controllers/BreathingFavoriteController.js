@@ -1,4 +1,5 @@
 const BreathingFavoriteDAO = require('../dao/BreathingFavoriteDAO');
+const logger = require('../utils/logger');
 
 /**
  * Contrôleur pour les favoris de respiration.
@@ -11,27 +12,26 @@ class BreathingFavoriteController {
         try {
             const userId = req.params.userId;
             const favorites = await BreathingFavoriteDAO.getAllByUserId(userId);
+            logger.info('BreathingFavoriteController', 'Favoris de respiration récupérés', { userId, count: favorites.length });
             res.json(favorites);
         } catch (error) {
-            console.error('Erreur BreathingFavoriteController.list:', error);
+            logger.error('BreathingFavoriteController', 'Erreur lors de la récupération des favoris', error, { userId: req.params.userId });
             res.status(500).json({ error: 'Erreur lors de la récupération des favoris' });
         }
     }
 
-    /**
-     * Enregistre un nouveau favori avec vérification d'unicité.
-     */
     static async create(req, res) {
         try {
             const { user_id, name, breath_in, breath_hold, breath_out, duration, sound_type, vibration_intensity } = req.body;
-            
+
             if (!user_id || !name) {
+                logger.warn('BreathingFavoriteController', 'Paramètres manquants pour créer un favori');
                 return res.status(400).json({ error: 'User ID et nom du favori requis' });
             }
 
-            // Vérification d'unicité
             const existing = await BreathingFavoriteDAO.getByName(user_id, name);
             if (existing) {
+                logger.warn('BreathingFavoriteController', 'Favori avec ce nom existe déjà', { user_id, name });
                 return res.status(400).json({ error: 'Un favori avec ce nom existe déjà' });
             }
 
@@ -46,42 +46,45 @@ class BreathingFavoriteController {
                 vibration_intensity
             });
 
+            logger.info('BreathingFavoriteController', 'Favori de respiration créé', { favoriteId, user_id, name });
             res.status(201).json({ id: favoriteId, message: 'Favori ajouté avec succès' });
         } catch (error) {
-            console.error('Erreur BreathingFavoriteController.create:', error);
+            logger.error('BreathingFavoriteController', 'Erreur lors de la création du favori', error, { user_id });
             res.status(500).json({ error: 'Erreur lors de l\'ajout du favori' });
         }
     }
 
-    /**
-     * Met à jour un favori existant.
-     */
     static async update(req, res) {
         try {
             const id = req.params.id;
             const data = req.body;
-            
+
             const updated = await BreathingFavoriteDAO.update(id, data);
-            if (!updated) return res.status(404).json({ error: 'Favori non trouvé' });
-            
+            if (!updated) {
+                logger.warn('BreathingFavoriteController', 'Favori non trouvé pour mise à jour', { favoriteId: id });
+                return res.status(404).json({ error: 'Favori non trouvé' });
+            }
+
+            logger.info('BreathingFavoriteController', 'Favori mis à jour', { favoriteId: id });
             res.json({ message: 'Favori mis à jour avec succès' });
         } catch (error) {
-            console.error('Erreur BreathingFavoriteController.update:', error);
+            logger.error('BreathingFavoriteController', 'Erreur lors de la mise à jour', error, { favoriteId: req.params.id });
             res.status(500).json({ error: 'Erreur lors de la mise à jour' });
         }
     }
 
-    /**
-     * Supprime un favori.
-     */
     static async delete(req, res) {
         try {
             const id = req.params.id;
             const deleted = await BreathingFavoriteDAO.delete(id);
-            if (!deleted) return res.status(404).json({ error: 'Favori non trouvé' });
+            if (!deleted) {
+                logger.warn('BreathingFavoriteController', 'Favori non trouvé pour suppression', { favoriteId: id });
+                return res.status(404).json({ error: 'Favori non trouvé' });
+            }
+            logger.info('BreathingFavoriteController', 'Favori supprimé', { favoriteId: id });
             res.json({ message: 'Favori supprimé avec succès' });
         } catch (error) {
-            console.error('Erreur BreathingFavoriteController.delete:', error);
+            logger.error('BreathingFavoriteController', 'Erreur lors de la suppression', error, { favoriteId: req.params.id });
             res.status(500).json({ error: 'Erreur lors de la suppression' });
         }
     }

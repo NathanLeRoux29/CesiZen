@@ -22,9 +22,6 @@
       <!-- Section Profil -->
       <v-card class="profile-card mt-6 pa-6" elevation="0" rounded="lg">
         <div class="d-flex align-center flex-wrap">
-          <v-avatar size="100" class="mr-6 mb-4 mb-md-0">
-            <v-img :src="userStore.user.avatar" cover></v-img>
-          </v-avatar>
           <div class="flex-grow-1">
             <h2 class="text-h5 font-weight-bold text-primary mb-1">
               {{ userStore.user.name }}

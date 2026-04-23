@@ -176,10 +176,16 @@
 
     <!-- Dialog de modification du profil -->
     <v-dialog v-model="editDialog" max-width="500">
-      <v-card class="pa-6" elevation="0" rounded="lg">
-        <h2 class="text-h5 font-weight-bold text-primary mb-6">
-          Modifier mon profil
-        </h2>
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-6">
+          <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
+            <v-icon color="primary" class="mr-3">mdi-account-edit</v-icon>
+            Modifier mon profil
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="editDialog = false"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
         
         <v-form v-model="editFormValid">
           <v-text-field
@@ -239,10 +245,16 @@
 
     <!-- Dialog de modification du mot de passe -->
     <v-dialog v-model="passwordDialog" max-width="500">
-      <v-card class="pa-6" elevation="0" rounded="lg">
-        <h2 class="text-h5 font-weight-bold text-primary mb-6">
-          Modifier mon mot de passe
-        </h2>
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-6">
+          <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
+            <v-icon color="primary" class="mr-3">mdi-lock-reset</v-icon>
+            Modifier mon mot de passe
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="closePasswordDialog"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
 
         <v-form v-model="passwordFormValid">
           <v-text-field
@@ -333,11 +345,17 @@
 
     <!-- Dialog de confirmation de suppression -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card class="pa-6" elevation="0" rounded="lg">
-        <h2 class="text-h5 font-weight-bold text-error mb-4">
-          Confirmer la suppression
-        </h2>
-        <p class="text-body-1 mb-6">
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-4">
+          <h2 class="text-h5 font-weight-bold text-error d-flex align-center">
+            <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+            Confirmer la suppression
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="deleteDialog = false"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
+        <p class="text-body-1 mb-6 text-white">
           Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.
         </p>
         <div class="d-flex justify-end">
@@ -350,7 +368,7 @@
           </v-btn>
           <v-btn
             color="error"
-            variant="flat"
+            variant="outlined"
             rounded="lg"
             @click="confirmDelete"
           >

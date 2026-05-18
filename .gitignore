@@ -16,6 +16,13 @@ dist/
 *.sw?
 android/
 .env
+.last-run.json
+
+# Todo
+TODO.md
+
+# Claude
+superpowers/
 
 # Environment Variables
 .env

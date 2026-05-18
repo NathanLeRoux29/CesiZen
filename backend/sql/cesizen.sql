@@ -1,3 +1,4 @@
+SET NAMES utf8mb4;
 CREATE TABLE `users` (
   `id` integer PRIMARY KEY AUTO_INCREMENT,
   `username` varchar(255),

@@ -1,0 +1,42 @@
+name: Build Production
+
+# Déclenché sur chaque push sur la branche main
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-images:
+    name: Build des images Docker de production
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Extraction de la version depuis le tag Git
+        id: version
+        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
+
+      - name: Build image Docker backend
+        run: docker build -t cesizen-backend:latest ./backend
+
+      - name: Build image Docker frontend
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=http://localhost:3001 \
+            -t cesizen-frontend:latest \
+            ./frontend
+
+      - name: Build image Docker backoffice
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=http://localhost:3001 \
+            -t cesizen-backoffice:latest \
+            ./backoffice
+
+      - name: Résumé du build
+        run: |
+          echo "Images buildées avec succès"
+          docker images | grep cesizen

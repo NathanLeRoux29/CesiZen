@@ -35,6 +35,23 @@ jobs:
     name: Tests frontend (Playwright)
     runs-on: ubuntu-latest
 
+    # Service MySQL pour les tests d'intégration
+    services:
+      mysql:
+        image: mysql:8
+        env:
+          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_DATABASE: cesizen
+          MYSQL_USER: cesizen_user
+          MYSQL_PASSWORD: password_ci
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h localhost -u root -proot_ci"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=10
+
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
@@ -45,6 +62,29 @@ jobs:
           node-version: '20'
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
+
+      - name: Import du schéma SQL
+        run: mysql -h 127.0.0.1 -u root -proot_ci cesizen < backend/sql/cesizen.sql
+
+      - name: Installation des dépendances backend
+        working-directory: backend
+        run: npm ci
+
+      - name: Démarrage du backend en arrière-plan
+        working-directory: backend
+        run: npm start &
+        env:
+          PORT: 3001
+          DB_HOST: 127.0.0.1
+          DB_USER: cesizen_user
+          DB_PASSWORD: password_ci
+          DB_NAME: cesizen
+          JWT_SECRET: ci_jwt_secret
+          JWT_EXPIRES_IN: 24h
+          NODE_ENV: production
+
+      - name: Attendre que le backend soit prêt
+        run: npx wait-on http://localhost:3001 --timeout 30000
 
       - name: Installation des dépendances frontend
         working-directory: frontend
@@ -59,3 +99,4 @@ jobs:
         run: npx playwright test
         env:
           CI: true
+          VITE_API_URL: http://localhost:3001

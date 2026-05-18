@@ -1,0 +1,33 @@
+name: Build Pré-production
+
+# Déclenché sur chaque push sur la branche preprod
+on:
+  push:
+    branches:
+      - preprod
+
+jobs:
+  build-images:
+    name: Vérification des builds Docker
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Build image Docker backend
+        run: docker build -t cesizen-backend:preprod ./backend
+
+      - name: Build image Docker frontend
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=http://localhost:3001 \
+            -t cesizen-frontend:preprod \
+            ./frontend
+
+      - name: Build image Docker backoffice
+        run: |
+          docker build \
+            --build-arg VITE_API_URL=http://localhost:3001 \
+            -t cesizen-backoffice:preprod \
+            ./backoffice

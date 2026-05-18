@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const ArticleFavoriteController = require('../controllers/ArticleFavoriteController');
+const { authMiddleware } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -8,6 +9,9 @@ const ArticleFavoriteController = require('../controllers/ArticleFavoriteControl
  *   name: ArticleFavorites
  *   description: Gestion des articles favoris
  */
+
+// Toutes les routes nécessitent une authentification
+router.use(authMiddleware);
 
 /**
  * @swagger

@@ -37,6 +37,13 @@
           @click="openEditDialog(item)"
         ></v-btn>
         <v-btn
+          icon="mdi-lock"
+          variant="text"
+          color="warning"
+          size="small"
+          @click="openPasswordDialog(item)"
+        ></v-btn>
+        <v-btn
           icon="mdi-delete"
           variant="text"
           color="error"
@@ -65,6 +72,33 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog de changement de mot de passe -->
+    <v-dialog v-model="passwordDialog" max-width="500">
+      <v-card class="pa-6">
+        <v-card-title class="text-h5 font-weight-bold mb-4">
+          Réinitialiser le mot de passe
+        </v-card-title>
+        <v-card-text class="pa-0 mb-4">
+          Nouveau mot de passe pour <strong>{{ selectedUser?.username }}</strong>
+        </v-card-text>
+        <v-form @submit.prevent="handlePasswordUpdate">
+          <v-text-field
+            v-model="passwordForm.password"
+            label="Nouveau mot de passe"
+            variant="outlined"
+            type="password"
+            :rules="[v => !!v || 'Mot de passe requis', v => v.length >= 8 || 'Minimum 8 caractères']"
+          ></v-text-field>
+
+          <v-card-actions class="pa-0 mt-4">
+            <v-spacer></v-spacer>
+            <v-btn variant="text" @click="passwordDialog = false">Annuler</v-btn>
+            <v-btn color="warning" type="submit" :loading="savingPassword">Enregistrer</v-btn>
+          </v-card-actions>
+        </v-form>
+      </v-card>
+    </v-dialog>
+
     <v-dialog v-model="deleteDialog" max-width="400">
       <v-card class="pa-4">
         <v-card-title>Confirmer la suppression</v-card-title>
@@ -81,7 +115,7 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
+import { api } from '../stores/auth'
 
 const users = ref([])
 const loading = ref(false)
@@ -89,6 +123,7 @@ const saving = ref(false)
 const search = ref('')
 const deleteDialog = ref(false)
 const editDialog = ref(false)
+const passwordDialog = ref(false)
 const selectedUser = ref(null)
 
 const form = ref({
@@ -97,6 +132,11 @@ const form = ref({
   is_admin: false,
   is_active: true
 })
+
+const passwordForm = ref({
+  password: ''
+})
+const savingPassword = ref(false)
 
 const headers = [
   { title: 'ID', key: 'id' },
@@ -110,7 +150,7 @@ const headers = [
 const fetchUsers = async () => {
   loading.value = true
   try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/admin/users`)
+    const response = await api.get('/api/admin/users')
     users.value = response.data
   } catch (error) {
     console.error(error)
@@ -121,7 +161,7 @@ const fetchUsers = async () => {
 
 const openEditDialog = (user) => {
   selectedUser.value = user
-  form.value = { 
+  form.value = {
     username: user.username,
     email: user.email,
     is_admin: !!user.is_admin,
@@ -130,10 +170,31 @@ const openEditDialog = (user) => {
   editDialog.value = true
 }
 
+const openPasswordDialog = (user) => {
+  selectedUser.value = user
+  passwordForm.value.password = ''
+  passwordDialog.value = true
+}
+
+const handlePasswordUpdate = async () => {
+  if (!passwordForm.value.password || passwordForm.value.password.length < 8) return
+  savingPassword.value = true
+  try {
+    await api.put(`/api/admin/users/${selectedUser.value.id}/password`, {
+      password: passwordForm.value.password
+    })
+    passwordDialog.value = false
+  } catch (error) {
+    console.error(error)
+  } finally {
+    savingPassword.value = false
+  }
+}
+
 const handleUpdate = async () => {
   saving.value = true
   try {
-    await axios.put(`${import.meta.env.VITE_API_URL}/api/admin/users/${selectedUser.value.id}`, form.value)
+    await api.put(`/api/admin/users/${selectedUser.value.id}`, form.value)
     await fetchUsers()
     editDialog.value = false
   } catch (error) {
@@ -150,7 +211,7 @@ const confirmDelete = (user) => {
 
 const handleDelete = async () => {
   try {
-    await axios.delete(`${import.meta.env.VITE_API_URL}/api/admin/users/${selectedUser.value.id}`)
+    await api.delete(`/api/admin/users/${selectedUser.value.id}`)
     await fetchUsers()
     deleteDialog.value = false
   } catch (error) {

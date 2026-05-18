@@ -68,9 +68,23 @@ export const useUserStore = defineStore('user', () => {
         localStorage.removeItem(USER_KEY)
     }
 
-    const updateUser = (userData) => {
-        user.value = { ...user.value, ...userData }
-        localStorage.setItem(USER_KEY, JSON.stringify(user.value))
+    const updateUser = async (userData) => {
+        try {
+            const response = await api.put('/users/profile', {
+                username: userData.name,
+                email: userData.email
+            }, {
+                headers: {
+                    Authorization: `Bearer ${token.value}`
+                }
+            })
+            user.value = { ...user.value, ...response.data.user, name: response.data.user.username }
+            localStorage.setItem(USER_KEY, JSON.stringify(user.value))
+            return response.data
+        } catch (error) {
+            console.error('Erreur mise à jour profil:', error)
+            throw error
+        }
     }
 
     const incrementArticlesViewed = () => {
@@ -85,8 +99,15 @@ export const useUserStore = defineStore('user', () => {
         user.value.stats.breathingExercises++
     }
 
-    const deleteAccount = () => {
-        logout()
+    const deleteAccount = async () => {
+        try {
+            await api.delete('/users/account')
+        } catch (error) {
+            console.error('Erreur suppression compte:', error)
+            throw error
+        } finally {
+            logout()
+        }
     }
 
     return {

@@ -36,18 +36,18 @@ test.describe('Authentification', () => {
 
   test('[AUTH-03] - Se connecter à son compte', async ({ page }) => {
     await page.goto('/Login');
-    
+
     // Saisir identifiants (du SQL)
     await page.locator('input[type="email"]').fill('user@cesizen.fr');
-    await page.locator('input[type="password"]').fill('user123');
-    
+    await page.locator('input[type="password"]').fill('user1234');
+
     // Se connecter
     await page.getByRole('button', { name: /se connecter/i }).click();
 
-    // Vérifier redirection accueil
-    await expect(page).toHaveURL(/\/$/);
+    // Attendre la redirection vers l'accueil
+    await expect(page).toHaveURL('http://localhost:3000/', { timeout: 10000 });
 
     // Vérifier que le nom d'utilisateur apparaît dans la barre
-    await expect(page.locator('.app-bar')).toContainText(/utilisateur/i);
+    await expect(page.locator('.app-bar')).toContainText(/stephane/i);
   });
 });

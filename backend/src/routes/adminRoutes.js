@@ -15,6 +15,7 @@ router.use(authMiddleware, adminMiddleware);
 
 // Gestion des Utilisateurs
 router.get('/users', AdminController.getUsers);
+router.put('/users/:id/password', AdminController.updateUserPassword);
 router.put('/users/:id', AdminController.updateUser);
 router.delete('/users/:id', AdminController.deleteUser);
 

@@ -109,9 +109,10 @@ const menuItems = [
   { title: 'Diagnostics', to: '/diagnostics' },
   { title: 'Activités', to: '/activites' },
   { title: 'Respiration', to: '/Breathing' },
-  { title: 'Ressources', to: '/ressources' },
+  // { title: 'Ressources', to: '/ressources' },
   { title: 'Émotions', to: '/emotions' },
   { title: 'FAQ', to: '/faq' },
+  { title: 'Mentions légales', to: '/Legal' },
 ]
 </script>
 

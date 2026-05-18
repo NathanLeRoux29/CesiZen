@@ -22,9 +22,6 @@
       <!-- Section Profil -->
       <v-card class="profile-card mt-6 pa-6" elevation="0" rounded="lg">
         <div class="d-flex align-center flex-wrap">
-          <v-avatar size="100" class="mr-6 mb-4 mb-md-0">
-            <v-img :src="userStore.user.avatar" cover></v-img>
-          </v-avatar>
           <div class="flex-grow-1">
             <h2 class="text-h5 font-weight-bold text-primary mb-1">
               {{ userStore.user.name }}
@@ -38,10 +35,19 @@
               color="primary"
               variant="outlined"
               rounded="lg"
-              @click="editDialog = true"
+              @click="openEditDialog"
             >
               <v-icon start>mdi-pencil</v-icon>
               Modifier
+            </v-btn>
+            <v-btn
+              color="warning"
+              variant="outlined"
+              rounded="lg"
+              @click="openPasswordDialog"
+            >
+              <v-icon start>mdi-lock</v-icon>
+              Mot de passe
             </v-btn>
             <v-btn
               color="error"
@@ -170,10 +176,16 @@
 
     <!-- Dialog de modification du profil -->
     <v-dialog v-model="editDialog" max-width="500">
-      <v-card class="pa-6" elevation="0" rounded="lg">
-        <h2 class="text-h5 font-weight-bold text-primary mb-6">
-          Modifier mon profil
-        </h2>
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-6">
+          <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
+            <v-icon color="primary" class="mr-3">mdi-account-edit</v-icon>
+            Modifier mon profil
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="editDialog = false"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
         
         <v-form v-model="editFormValid">
           <v-text-field
@@ -231,13 +243,119 @@
       </v-card>
     </v-dialog>
 
+    <!-- Dialog de modification du mot de passe -->
+    <v-dialog v-model="passwordDialog" max-width="500">
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-6">
+          <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
+            <v-icon color="primary" class="mr-3">mdi-lock-reset</v-icon>
+            Modifier mon mot de passe
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="closePasswordDialog"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
+
+        <v-form v-model="passwordFormValid">
+          <v-text-field
+            v-model="passwordForm.currentPassword"
+            label="Mot de passe actuel"
+            :type="showCurrentPassword ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock"
+            :append-inner-icon="showCurrentPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            variant="outlined"
+            color="primary"
+            :rules="[v => !!v || 'Le mot de passe est requis']"
+            class="mb-4"
+            @click:append-inner="showCurrentPassword = !showCurrentPassword"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="passwordForm.newPassword"
+            label="Nouveau mot de passe"
+            :type="showNewPassword ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-plus"
+            :append-inner-icon="showNewPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            variant="outlined"
+            color="primary"
+            :rules="[
+              v => !!v || 'Le nouveau mot de passe est requis',
+              v => v.length >= 8 || 'Minimum 8 caractères'
+            ]"
+            class="mb-4"
+            @click:append-inner="showNewPassword = !showNewPassword"
+          ></v-text-field>
+
+          <v-text-field
+            v-model="passwordForm.confirmPassword"
+            label="Confirmer le nouveau mot de passe"
+            :type="showConfirmPassword ? 'text' : 'password'"
+            prepend-inner-icon="mdi-lock-check"
+            :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
+            variant="outlined"
+            color="primary"
+            :rules="[
+              v => !!v || 'La confirmation est requise',
+              v => v === passwordForm.newPassword || 'Les mots de passe ne correspondent pas'
+            ]"
+            class="mb-6"
+            @click:append-inner="showConfirmPassword = !showConfirmPassword"
+          ></v-text-field>
+
+          <v-alert
+            v-if="passwordError"
+            type="error"
+            variant="tonal"
+            class="mb-4"
+          >
+            {{ passwordError }}
+          </v-alert>
+
+          <v-alert
+            v-if="passwordSuccess"
+            type="success"
+            variant="tonal"
+            class="mb-4"
+          >
+            {{ passwordSuccess }}
+          </v-alert>
+
+          <div class="d-flex justify-end">
+            <v-btn
+              variant="text"
+              @click="closePasswordDialog"
+              class="mr-2"
+            >
+              Annuler
+            </v-btn>
+            <v-btn
+              color="primary"
+              variant="flat"
+              rounded="lg"
+              :disabled="!passwordFormValid || savingPassword"
+              :loading="savingPassword"
+              @click="savePassword"
+            >
+              Enregistrer
+            </v-btn>
+          </div>
+        </v-form>
+      </v-card>
+    </v-dialog>
+
     <!-- Dialog de confirmation de suppression -->
     <v-dialog v-model="deleteDialog" max-width="400">
-      <v-card class="pa-6" elevation="0" rounded="lg">
-        <h2 class="text-h5 font-weight-bold text-error mb-4">
-          Confirmer la suppression
-        </h2>
-        <p class="text-body-1 mb-6">
+      <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
+        <div class="d-flex align-center justify-space-between mb-4">
+          <h2 class="text-h5 font-weight-bold text-error d-flex align-center">
+            <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+            Confirmer la suppression
+          </h2>
+          <v-btn icon="mdi-close" variant="text" @click="deleteDialog = false"></v-btn>
+        </div>
+
+        <v-divider class="mb-6 opacity-10"></v-divider>
+        <p class="text-body-1 mb-6 text-white">
           Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.
         </p>
         <div class="d-flex justify-end">
@@ -250,7 +368,7 @@
           </v-btn>
           <v-btn
             color="error"
-            variant="flat"
+            variant="outlined"
             rounded="lg"
             @click="confirmDelete"
           >
@@ -322,6 +440,21 @@ const userStore = useUserStore()
 const editDialog = ref(false)
 const deleteDialog = ref(false)
 const favoritesDialog = ref(false)
+const passwordDialog = ref(false)
+
+// Password form
+const passwordFormValid = ref(false)
+const passwordForm = reactive({
+  currentPassword: '',
+  newPassword: '',
+  confirmPassword: ''
+})
+const showCurrentPassword = ref(false)
+const showNewPassword = ref(false)
+const showConfirmPassword = ref(false)
+const passwordError = ref('')
+const passwordSuccess = ref('')
+const savingPassword = ref(false)
 
 // État Favoris
 const favoriteArticles = ref([])
@@ -335,6 +468,67 @@ const editForm = reactive({
   avatar: ''
 })
 
+// Ouvrir le dialog d'édition avec les données pré-remplies
+const openEditDialog = () => {
+  editForm.name = userStore.user.name
+  editForm.email = userStore.user.email
+  editDialog.value = true
+}
+
+// Password dialog
+const openPasswordDialog = () => {
+  passwordForm.currentPassword = ''
+  passwordForm.newPassword = ''
+  passwordForm.confirmPassword = ''
+  passwordError.value = ''
+  passwordSuccess.value = ''
+  passwordDialog.value = true
+}
+
+const closePasswordDialog = () => {
+  passwordDialog.value = false
+  passwordError.value = ''
+  passwordSuccess.value = ''
+}
+
+const savePassword = async () => {
+  if (!passwordFormValid.value) return
+
+  savingPassword.value = true
+  passwordError.value = ''
+  passwordSuccess.value = ''
+
+  try {
+    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/password`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+        Authorization: `Bearer ${userStore.token}`
+      },
+      body: JSON.stringify({
+        currentPassword: passwordForm.currentPassword,
+        newPassword: passwordForm.newPassword
+      })
+    })
+
+    const data = await response.json()
+
+    if (!response.ok) {
+      passwordError.value = data.error || 'Erreur lors du changement de mot de passe'
+      return
+    }
+
+    passwordSuccess.value = 'Mot de passe mis à jour avec succès'
+    setTimeout(() => {
+      closePasswordDialog()
+    }, 1500)
+  } catch (error) {
+    passwordError.value = 'Erreur de connexion au serveur'
+  } finally {
+    savingPassword.value = false
+  }
+}
+
 // Gestion de la déconnexion
 const handleLogout = () => {
   userStore.logout()
@@ -342,16 +536,18 @@ const handleLogout = () => {
 }
 
 // Sauvegarder le profil
-const saveProfile = () => {
+const saveProfile = async () => {
   if (!editFormValid.value) return
-  
-  userStore.updateUser({
-    name: editForm.name,
-    email: editForm.email,
-    avatar: editForm.avatar
-  })
-  
-  editDialog.value = false
+
+  try {
+    await userStore.updateUser({
+      name: editForm.name,
+      email: editForm.email
+    })
+    editDialog.value = false
+  } catch (error) {
+    console.error('Erreur lors de la sauvegarde:', error)
+  }
 }
 
 // Confirmer la suppression du compte

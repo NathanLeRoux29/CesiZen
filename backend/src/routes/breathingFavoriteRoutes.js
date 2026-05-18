@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const BreathingFavoriteController = require('../controllers/BreathingFavoriteController');
+const { authMiddleware } = require('../middleware/auth');
 
 /**
  * @swagger
@@ -15,6 +16,10 @@ const BreathingFavoriteController = require('../controllers/BreathingFavoriteCon
  *         schema:
  *           type: integer
  */
+
+// Toutes les routes nécessitent une authentification
+router.use(authMiddleware);
+
 router.get('/:userId', BreathingFavoriteController.list);
 
 /**

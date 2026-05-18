@@ -22,7 +22,9 @@ declare module 'vue-router/auto-routes' {
     '/ArticleDetail': RouteRecordInfo<'/ArticleDetail', '/ArticleDetail', Record<never, never>, Record<never, never>>,
     '/Breathing': RouteRecordInfo<'/Breathing', '/Breathing', Record<never, never>, Record<never, never>>,
     '/Catalogue': RouteRecordInfo<'/Catalogue', '/Catalogue', Record<never, never>, Record<never, never>>,
+    '/Faq': RouteRecordInfo<'/Faq', '/Faq', Record<never, never>, Record<never, never>>,
     '/Home': RouteRecordInfo<'/Home', '/Home', Record<never, never>, Record<never, never>>,
+    '/Legal': RouteRecordInfo<'/Legal', '/Legal', Record<never, never>, Record<never, never>>,
     '/Login': RouteRecordInfo<'/Login', '/Login', Record<never, never>, Record<never, never>>,
   }
 
@@ -53,8 +55,16 @@ declare module 'vue-router/auto-routes' {
       routes: '/Catalogue'
       views: never
     }
+    'src/pages/Faq.vue': {
+      routes: '/Faq'
+      views: never
+    }
     'src/pages/Home.vue': {
       routes: '/Home'
+      views: never
+    }
+    'src/pages/Legal.vue': {
+      routes: '/Legal'
       views: never
     }
     'src/pages/Login.vue': {

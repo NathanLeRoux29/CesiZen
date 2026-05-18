@@ -214,7 +214,7 @@ const handleSubmit = async () => {
 
 .login-card {
   background: rgba(255, 255, 255, 0.03) !important;
-  backdrop-filter: blur(25px) saturate(180%);
+  backdrop-filter: blur(25px);
   border: 1px solid rgba(4, 255, 146, 0.1) !important;
   box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5) !important;
 }

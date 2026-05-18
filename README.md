@@ -72,3 +72,6 @@ npm run dev
 - Pour plus de détails sur chaque composant, référez-vous aux fichiers README dans chaque sous-répertoire.
 - Documentation de l'API (Swagger) : [http://localhost:3001/api-docs](http://localhost:3001/api-docs) (lorsque le backend tourne).
 - Cahier de tests : disponible dans [docs/cahier_de_tests.md](./docs/cahier_de_tests.md).
+
+
+# Test Ci

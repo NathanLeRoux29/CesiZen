@@ -28,7 +28,7 @@
   "devDependencies": {
     "@playwright/test": "^1.59.1",
     "@vitejs/plugin-vue": "^6.0.1",
-    "eslint": "^9.35.0",
+    "eslint": "^10.4.0",
     "eslint-config-vuetify": "^4.2.0",
     "playwright": "^1.59.1",
     "sass-embedded": "^1.92.1",

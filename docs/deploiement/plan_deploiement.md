@@ -213,7 +213,7 @@ Trois jobs s'exécutent **en parallèle** sur des machines Ubuntu fournies par G
 
 Identique au job 2, appliqué au backoffice.
 
-Si un job échoue, la Pull Request est **bloquée** et ne peut pas être mergée.
+Si un job échoue, la Pull Request est **bloquée** et ne peut pas être mergée. Une issue GitHub est automatiquement créée avec le label `bug`, le nom de la branche et un lien vers les logs du workflow.
 
 ### 5.3 Pipeline Build — Pré-production
 

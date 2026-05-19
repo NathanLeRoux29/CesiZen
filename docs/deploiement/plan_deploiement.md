@@ -130,7 +130,7 @@ La pré-production est identique à la production sur le plan technique. Seules 
 ### 4.2 Stratégie de branches (Gitflow simplifié)
 
 ```
-feature/* -> dev -> preprod -> main
+feature/* / fix/* / security/* / docs/* / chore/* -> dev -> preprod -> main
 ```
 
 | Branche | Protection | Règle de merge |
@@ -142,12 +142,35 @@ feature/* -> dev -> preprod -> main
 
 ### 4.3 Convention de nommage
 
-- Branches : `feature/nom-de-la-fonctionnalite`
-- Commits : Respect de la convention
+- Branches : `feature/nom`, `fix/nom`, `security/nom`, `docs/nom`, `chore/nom`
+- Commits : Convention Conventional Commits (`feat:`, `fix:`, `feat!:`, `chore:`, `docs:`)
 - Tags de version : SemVer `vMAJEUR.MINEUR.PATCH`
-  - `v0.1.0` — MVP
+  - `v0.1.0` — MVP (containerisation Docker + CI/CD)
   - `v0.2.0` — Sécurisation
   - `v1.0.0` — Première mise en production réelle
+
+### 4.4 Procédure de création d'un tag de version
+
+Un tag Git est une étiquette permanente apposée sur un commit spécifique. Contrairement à une branche, il ne bouge jamais — c'est une "photo" de l'état du code à un instant donné.
+
+```bash
+# 1. Se placer sur la branche stable
+git checkout main
+
+# 2. Créer un tag annoté (avec message et auteur)
+git tag -a v0.1.0 -m "MVP : containerisation Docker + CI/CD GitHub Actions"
+
+# 3. Pousser le tag vers GitHub
+git push origin v0.1.0
+```
+
+Le tag annoté (option `-a`) est préféré au tag simple car il embarque un auteur, une date et un message — il apparaît dans l'onglet **Tags / Releases** de GitHub.
+
+| Type de changement | Version impactée | Exemple |
+|---|---|---|
+| Correction de bug | PATCH : `v0.1.0` → `v0.1.1` | `fix: correction bug connexion` |
+| Nouvelle fonctionnalité | MINOR : `v0.1.0` → `v0.2.0` | `feat: ajout exercices de respiration` |
+| Rupture de compatibilité | MAJOR : `v0.1.0` → `v1.0.0` | `feat!: refonte complète de l'API` |
 
 ---
 

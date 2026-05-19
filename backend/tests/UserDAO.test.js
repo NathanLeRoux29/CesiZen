@@ -48,4 +48,8 @@ describe('UserDAO', () => {
             expect(result).toBe(10);
         });
     });
+
+    test('test volontairement cassé', () => {
+        expect(true).toBe(false);
+    });
 });

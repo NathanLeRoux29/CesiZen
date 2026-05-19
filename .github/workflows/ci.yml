@@ -1,6 +1,6 @@
 name: CI Tests automatiques
 
-# Déclenché sur chaque Pull Request vers dev ou preprod
+# Déclenché automatiquement sur chaque Pull Request vers dev ou preprod
 on:
   pull_request:
     branches:
@@ -8,39 +8,41 @@ on:
       - preprod
 
 jobs:
+  # Tests unitaires du backend
   tests-backend:
     name: Tests backend (Jest)
-    runs-on: ubuntu-latest
-
+    runs-on: ubuntu-latest 
     steps:
       - name: Récupération du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v4  # Clone le dépôt dans la machine virtuelle
 
       - name: Installation de Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'
+          cache: 'npm'             # Met en cache node_modules
           cache-dependency-path: backend/package-lock.json
 
       - name: Installation des dépendances backend
         working-directory: backend
-        run: npm ci
+        run: npm ci  
 
       - name: Lancement des tests Jest
         working-directory: backend
-        run: npm test
+        run: npm test  
 
+  # Tests E2E du frontend 
   tests-frontend:
     name: Tests frontend (Playwright)
     runs-on: ubuntu-latest
 
-    # Service MySQL pour les tests d'intégration
+    # Conteneur MySQL lancé en parallèle
+    # GitHub Actions démarre ce service avant d'exécuter les steps
     services:
       mysql:
         image: mysql:8
         env:
-          MYSQL_ROOT_PASSWORD: root_ci
+          MYSQL_ROOT_PASSWORD: root_ci       # Credentials temporaires pour la CI uniquement
           MYSQL_DATABASE: cesizen
           MYSQL_USER: cesizen_user
           MYSQL_PASSWORD: password_ci
@@ -50,7 +52,7 @@ jobs:
           --health-cmd="mysqladmin ping -h localhost -u root -proot_ci"
           --health-interval=10s
           --health-timeout=5s
-          --health-retries=10
+          --health-retries=10             # Attend que MySQL soit prêt avant de continuer
 
     steps:
       - name: Récupération du code
@@ -83,6 +85,7 @@ jobs:
           JWT_EXPIRES_IN: 24h
           NODE_ENV: production
 
+      # Attend que l'API réponde avant de lancer les tests
       - name: Attendre que le backend soit prêt
         run: npx wait-on http://localhost:3001 --timeout 30000
 
@@ -90,13 +93,15 @@ jobs:
         working-directory: frontend
         run: npm ci
 
+      # Installe Chromium
       - name: Installation des navigateurs Playwright
         working-directory: frontend
         run: npx playwright install chromium --with-deps
 
+      # Lance les tests E2E      
       - name: Lancement des tests Playwright
         working-directory: frontend
         run: npx playwright test
         env:
           CI: true
-          VITE_API_URL: http://localhost:3001
+          VITE_API_URL: http://localhost:3001 

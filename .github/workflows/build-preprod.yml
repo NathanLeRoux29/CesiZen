@@ -1,6 +1,7 @@
 name: Build Pré-production
 
 # Déclenché sur chaque push sur la branche preprod
+# Vérifie que les 3 images Docker se build correctement
 on:
   push:
     branches:
@@ -15,9 +16,11 @@ jobs:
       - name: Récupération du code
         uses: actions/checkout@v4
 
+      # Construit l'image backend
       - name: Build image Docker backend
         run: docker build -t cesizen-backend:preprod ./backend
 
+      # Construit l'image frontend
       - name: Build image Docker frontend
         run: |
           docker build \
@@ -25,6 +28,7 @@ jobs:
             -t cesizen-frontend:preprod \
             ./frontend
 
+      # Construit l'image backoffice
       - name: Build image Docker backoffice
         run: |
           docker build \

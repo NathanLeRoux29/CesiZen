@@ -35,9 +35,28 @@ jobs:
         run: npm test
 
       # Vérifie que les dépendances npm n'ont pas de vulnérabilités connues (CVE)
+      # --audit-level=high : échoue uniquement sur les vulnérabilités high et critical
       - name: Audit de sécurité des dépendances backend
         working-directory: backend
-        run: npm audit
+        run: npm audit --audit-level=high
+
+      # Crée automatiquement une issue GitHub si le job échoue
+      - name: Créer une issue en cas d'échec
+        if: failure()
+        run: |
+          gh issue create \
+            --title "[BUG] Échec CI backend sur ${{ github.head_ref || github.ref_name }}" \
+            --body "## Échec de la CI — Tests backend
+
+          **Branche :** \`${{ github.head_ref || github.ref_name }}\`
+          **Commit :** \`${{ github.sha }}\`
+          **Déclenché par :** @${{ github.actor }}
+
+          [Voir les logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            --label "bug" \
+            --assignee "${{ github.actor }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Job 2 : build du frontend + audit de sécurité
   build-frontend:
@@ -59,7 +78,6 @@ jobs:
         run: npm install -g npm@11.6.1 && npm ci
 
       # Vérifie que le code Vue.js compile sans erreur
-      # VITE_API_URL est nécessaire pour que Vite ne plante pas à la compilation
       - name: Build Vite
         working-directory: frontend
         run: npm run build
@@ -68,7 +86,24 @@ jobs:
 
       - name: Audit de sécurité des dépendances frontend
         working-directory: frontend
-        run: npm audit 
+        run: npm audit --audit-level=high
+
+      - name: Créer une issue en cas d'échec
+        if: failure()
+        run: |
+          gh issue create \
+            --title "[BUG] Échec CI frontend sur ${{ github.head_ref || github.ref_name }}" \
+            --body "## Échec de la CI — Build frontend
+
+          **Branche :** \`${{ github.head_ref || github.ref_name }}\`
+          **Commit :** \`${{ github.sha }}\`
+          **Déclenché par :** @${{ github.actor }}
+
+          [Voir les logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            --label "bug" \
+            --assignee "${{ github.actor }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
   # Job 3 : build du backoffice + audit de sécurité
   build-backoffice:
@@ -97,4 +132,21 @@ jobs:
 
       - name: Audit de sécurité des dépendances backoffice
         working-directory: backoffice
-        run: npm audit
+        run: npm audit --audit-level=high
+
+      - name: Créer une issue en cas d'échec
+        if: failure()
+        run: |
+          gh issue create \
+            --title "[BUG] Échec CI backoffice sur ${{ github.head_ref || github.ref_name }}" \
+            --body "## Échec de la CI — Build backoffice
+
+          **Branche :** \`${{ github.head_ref || github.ref_name }}\`
+          **Commit :** \`${{ github.sha }}\`
+          **Déclenché par :** @${{ github.actor }}
+
+          [Voir les logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            --label "bug" \
+            --assignee "${{ github.actor }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

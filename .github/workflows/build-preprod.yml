@@ -6,6 +6,7 @@ on:
   push:
     branches:
       - preprod
+  workflow_dispatch:
 
 jobs:
   build-images:

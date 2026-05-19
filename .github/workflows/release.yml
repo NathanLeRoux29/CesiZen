@@ -12,11 +12,10 @@ on:
       - preprod
       - dev
 
-# Permissions nécessaires pour créer des tags, releases et modifier CHANGELOG.md
+# Permissions nécessaires pour créer des tags et releases GitHub
 permissions:
   contents: write
   issues: write
-  pull-requests: write
 
 jobs:
   release:
@@ -46,8 +45,6 @@ jobs:
             semantic-release \
             @semantic-release/commit-analyzer \
             @semantic-release/release-notes-generator \
-            @semantic-release/changelog \
-            @semantic-release/git \
             @semantic-release/github
 
       # Lance semantic-release :

@@ -123,9 +123,11 @@ La pré-production est identique à la production sur le plan technique. Seules 
 
 ## 4. Stratégie de versioning
 
-### 4.1 Outil
+### 4.1 Outils
 
 **Git + GitHub** — hébergement du code source, gestion des branches et des Pull Requests.
+
+**semantic-release** — outil de versioning automatique intégré via GitHub Actions (`.github/workflows/release.yml`). Il se déclenche automatiquement à chaque merge vers `dev`, `preprod` ou `main`, analyse les messages de commits depuis le dernier tag, calcule la prochaine version SemVer et crée le tag Git + la GitHub Release sans intervention manuelle.
 
 ### 4.2 Stratégie de branches (Gitflow simplifié)
 
@@ -153,28 +155,34 @@ feature/* / fix/* / security/* / docs/* / chore/* -> dev -> preprod -> main
   - `v0.1.0` — Mineur
   - `v1.0.0` — Majeur
 
-### 4.4 Procédure de création d'un tag de version
+### 4.4 Versioning automatique avec semantic-release
 
-Un tag Git est une étiquette permanente apposée sur un commit spécifique. Contrairement à une branche, il ne bouge jamais — c'est une "photo" de l'état du code à un instant donné.
+**Fichier :** `.github/workflows/release.yml`  
+**Déclencheur :** Push sur `dev`, `preprod` ou `main` (= chaque merge de PR)
 
-```bash
-# 1. Se placer sur la branche stable
-git checkout main
+semantic-release analyse les messages de commits depuis le dernier tag et détermine automatiquement la prochaine version :
 
-# 2. Créer un tag annoté (avec message et auteur)
-git tag -a v0.1.0 -m "MVP : containerisation Docker + CI/CD GitHub Actions"
-
-# 3. Pousser le tag vers GitHub
-git push origin v0.1.0
-```
-
-Le tag annoté (option `-a`) est préféré au tag simple car il embarque un auteur, une date et un message — il apparaît dans l'onglet **Tags / Releases** de GitHub.
-
-| Type de changement | Version impactée | Exemple |
+| Type de commit | Version impactée | Exemple |
 |---|---|---|
-| Correction de bug | PATCH : `v0.1.0` → `v0.1.1` | `fix: correction bug connexion` |
-| Nouvelle fonctionnalité | MINOR : `v0.1.0` → `v0.2.0` | `feat: ajout exercices de respiration` |
-| Rupture de compatibilité | MAJOR : `v0.1.0` → `v1.0.0` | `feat!: refonte complète de l'API` |
+| `fix:` | PATCH : `v0.1.0` → `v0.1.1` | `fix: correction bug connexion` |
+| `feat:` | MINOR : `v0.1.0` → `v0.2.0` | `feat: ajout exercices de respiration` |
+| `feat!:` | MAJOR : `v0.1.0` → `v1.0.0` | `feat!: refonte complète de l'API` |
+
+**Tags créés automatiquement selon la branche :**
+
+| Branche | Type de release | Exemple de tag |
+|---------|----------------|----------------|
+| `dev` | Pre-release alpha | `v0.2.0-alpha.1` |
+| `preprod` | Pre-release beta | `v0.2.0-beta.1` |
+| `main` | Release stable | `v0.2.0` |
+
+**Processus automatique à chaque merge :**
+1. Analyse des commits depuis le dernier tag
+2. Calcul de la prochaine version SemVer
+3. Création du tag Git
+4. Création d'une GitHub Release avec les notes de version générées depuis les commits
+
+Si aucun commit ne justifie une nouvelle version (ex: `chore:`, `docs:`), semantic-release ne crée rien.
 
 ---
 

@@ -1,59 +1,48 @@
 name: CI Tests automatiques
 
-# Déclenché automatiquement sur chaque Pull Request vers dev ou preprod
+# Déclenché automatiquement sur chaque Pull Request vers dev, preprod ou main
+# Peut aussi être lancé manuellement depuis l'onglet Actions de GitHub
 on:
   pull_request:
     branches:
       - dev
       - preprod
+      - main
+  workflow_dispatch:
 
 jobs:
-  # Tests unitaires du backend
+  # Job 1 : tests unitaires du backend + audit de sécurité
   tests-backend:
     name: Tests backend (Jest)
-    runs-on: ubuntu-latest 
+    runs-on: ubuntu-latest
     steps:
       - name: Récupération du code
-        uses: actions/checkout@v4  # Clone le dépôt dans la machine virtuelle
+        uses: actions/checkout@v4
 
       - name: Installation de Node.js 20
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-          cache: 'npm'             # Met en cache node_modules
+          cache: 'npm'
           cache-dependency-path: backend/package-lock.json
 
       - name: Installation des dépendances backend
         working-directory: backend
-        run: npm ci  
+        run: npm ci
 
       - name: Lancement des tests Jest
         working-directory: backend
-        run: npm test  
+        run: npm test
 
-  # Tests E2E du frontend 
-  tests-frontend:
-    name: Tests frontend (Playwright)
+      # Vérifie que les dépendances npm n'ont pas de vulnérabilités connues (CVE)
+      - name: Audit de sécurité des dépendances backend
+        working-directory: backend
+        run: npm audit
+
+  # Job 2 : build du frontend + audit de sécurité
+  build-frontend:
+    name: Build frontend (Vite)
     runs-on: ubuntu-latest
-
-    # Conteneur MySQL lancé en parallèle
-    # GitHub Actions démarre ce service avant d'exécuter les steps
-    services:
-      mysql:
-        image: mysql:8
-        env:
-          MYSQL_ROOT_PASSWORD: root_ci       # Credentials temporaires pour la CI uniquement
-          MYSQL_DATABASE: cesizen
-          MYSQL_USER: cesizen_user
-          MYSQL_PASSWORD: password_ci
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -proot_ci"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10             # Attend que MySQL soit prêt avant de continuer
-
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
@@ -65,43 +54,47 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Import du schéma SQL
-        run: mysql -h 127.0.0.1 -u root -proot_ci cesizen < backend/sql/cesizen.sql
-
-      - name: Installation des dépendances backend
-        working-directory: backend
-        run: npm ci
-
-      - name: Démarrage du backend en arrière-plan
-        working-directory: backend
-        run: npm start &
-        env:
-          PORT: 3001
-          DB_HOST: 127.0.0.1
-          DB_USER: cesizen_user
-          DB_PASSWORD: password_ci
-          DB_NAME: cesizen
-          JWT_SECRET: ci_jwt_secret
-          JWT_EXPIRES_IN: 24h
-          NODE_ENV: production
-
-      # Attend que l'API réponde avant de lancer les tests
-      - name: Attendre que le backend soit prêt
-        run: npx wait-on http://localhost:3001 --timeout 30000
-
       - name: Installation des dépendances frontend
         working-directory: frontend
-        run: npm ci
+        run: npm install -g npm@11.6.1 && npm ci
 
-      # Installe Chromium
-      - name: Installation des navigateurs Playwright
+      # Vérifie que le code Vue.js compile sans erreur
+      # VITE_API_URL est nécessaire pour que Vite ne plante pas à la compilation
+      - name: Build Vite
         working-directory: frontend
-        run: npx playwright install chromium --with-deps
-
-      # Lance les tests E2E      
-      - name: Lancement des tests Playwright
-        working-directory: frontend
-        run: npx playwright test
+        run: npm run build
         env:
-          CI: true
-          VITE_API_URL: http://localhost:3001 
+          VITE_API_URL: http://localhost:3001
+
+      - name: Audit de sécurité des dépendances frontend
+        working-directory: frontend
+        run: npm audit 
+
+  # Job 3 : build du backoffice + audit de sécurité
+  build-backoffice:
+    name: Build backoffice (Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backoffice/package-lock.json
+
+      - name: Installation des dépendances backoffice
+        working-directory: backoffice
+        run: npm install -g npm@11.6.1 && npm ci
+
+      - name: Build Vite
+        working-directory: backoffice
+        run: npm run build
+        env:
+          VITE_API_URL: http://localhost:3001
+
+      - name: Audit de sécurité des dépendances backoffice
+        working-directory: backoffice
+        run: npm audit

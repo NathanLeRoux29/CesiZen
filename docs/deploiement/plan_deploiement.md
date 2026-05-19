@@ -91,7 +91,7 @@ Le projet distingue trois environnements correspondant à trois branches Git :
 | URL backoffice | `http://localhost:5173` |
 | URL backend | `http://localhost:3001` |
 
-Toute nouvelle fonctionnalité est développée sur une branche `feature/*` puis intégrée à `dev` via Pull Request.
+Toute nouvelle fonctionnalité ou correction est développée sur une branche dédiée (`feature/*`, `fix/*`, `security/*`) puis intégrée à `dev` via Pull Request.
 
 ### 3.2 Environnement de pré-production (branche `preprod`)
 
@@ -139,6 +139,10 @@ feature/* / fix/* / security/* / docs/* / chore/* -> dev -> preprod -> main
 | `preprod` | Protégée | PR obligatoire + CI valide |
 | `dev` | Libre | CI valide |
 | `feature/*` | Libre | Créée depuis `dev` |
+| `fix/*` | Libre | Créée depuis `dev` |
+| `security/*` | Libre | Créée depuis `dev` |
+| `docs/*` | Libre | Créée depuis `dev` |
+| `chore/*` | Libre | Créée depuis `dev` |
 
 ### 4.3 Convention de nommage
 
@@ -180,23 +184,36 @@ Le tag annoté (option `-a`) est préféré au tag simple car il embarque un aut
 
 **GitHub Actions** — pipelines automatiques déclenchés par les événements Git.
 
-### 5.2 Pipeline CI — Tests automatiques
+### 5.2 Pipeline CI — Tests et vérifications automatiques
 
 **Fichier :** `.github/workflows/ci.yml`  
-**Déclencheur :** Pull Request vers `dev` ou `preprod`
+**Déclencheur :** Pull Request vers `dev`, `preprod` ou `main` — ou manuellement via GitHub Actions  
+
+Trois jobs s'exécutent **en parallèle** sur des machines Ubuntu fournies par GitHub :
+
+**Job 1 — Tests backend (Jest)**
 
 | Étape | Description |
 |-------|-------------|
 | 1 | Checkout du code |
-| 2 | Démarrage d'un service MySQL de test |
-| 3 | Import du schéma SQL |
-| 4 | Installation et démarrage du backend |
-| 5 | Tests Jest (backend) |
-| 6 | Installation des dépendances frontend |
-| 7 | Installation de Chromium (Playwright) |
-| 8 | Tests Playwright (frontend) |
+| 2 | Installation Node.js 20 + dépendances |
+| 3 | Tests unitaires Jest |
+| 4 | Audit de sécurité (`npm audit --audit-level=high`) |
 
-Si un test échoue, la Pull Request est **bloquée** et ne peut pas être mergée.
+**Job 2 — Build frontend (Vite)**
+
+| Étape | Description |
+|-------|-------------|
+| 1 | Checkout du code |
+| 2 | Installation Node.js 20 + dépendances |
+| 3 | Compilation Vite (`npm run build`) |
+| 4 | Audit de sécurité (`npm audit --audit-level=high`) |
+
+**Job 3 — Build backoffice (Vite)**
+
+Identique au job 2, appliqué au backoffice.
+
+Si un job échoue, la Pull Request est **bloquée** et ne peut pas être mergée.
 
 ### 5.3 Pipeline Build — Pré-production
 
@@ -385,3 +402,62 @@ Configuration des monitors recommandée :
 - Alertes par email en cas d'indisponibilité
 
 Accès au dashboard : `http://localhost:3002`
+
+---
+
+## 11. Évolutions prévues
+
+### 11.1 Déploiement continu sur VPS (CD)
+
+Actuellement les pipelines CI/CD vérifient et construisent les images Docker mais ne les déploient pas automatiquement sur un serveur. L'évolution prévue est d'ajouter un job de déploiement dans `build-main.yml` qui se connecte au VPS via SSH et redémarre les conteneurs :
+
+```yaml
+# Job à ajouter dans build-main.yml une fois le VPS disponible
+deploy:
+  needs: build-images        # S'exécute uniquement si le build a réussi
+  runs-on: ubuntu-latest
+  steps:
+    - name: Déploiement sur le VPS
+      uses: appleboy/ssh-action@v1
+      with:
+        host: ${{ secrets.SSH_HOST }}
+        username: ${{ secrets.SSH_USER }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          cd /opt/cesizen
+          git pull origin main
+          docker compose up --build -d
+```
+
+**Secrets GitHub à configurer :**
+
+| Secret | Description |
+|--------|-------------|
+| `SSH_HOST` | Adresse IP ou domaine du VPS |
+| `SSH_USER` | Utilisateur SSH (ex: `ubuntu`) |
+| `SSH_PRIVATE_KEY` | Clé privée SSH pour l'authentification |
+
+### 11.2 Versioning des images Docker
+
+Actuellement les images sont taguées `:latest` et `:preprod`. En production réelle, chaque image devrait être taguée avec la version SemVer ET le SHA du commit pour une traçabilité complète :
+
+```bash
+# Exemple de tags pour une image de production
+cesizen-backend:latest          # Toujours la version courante
+cesizen-backend:v0.1.0          # Version SemVer figée
+cesizen-backend:a3f9c12         # SHA du commit (traçabilité exacte)
+```
+
+Ces images seraient ensuite poussées vers un registry Docker (Docker Hub ou GitHub Container Registry) pour être déployées depuis le VPS sans avoir à rebuilder sur le serveur.
+
+### 11.3 Registry Docker
+
+```bash
+# Workflow futur : push vers GitHub Container Registry
+docker push ghcr.io/nathanleroux29/cesizen-backend:latest
+docker push ghcr.io/nathanleroux29/cesizen-backend:v0.1.0
+
+# Sur le VPS : pull et redémarrage
+docker compose pull
+docker compose up -d
+```

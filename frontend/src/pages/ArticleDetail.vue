@@ -2,18 +2,18 @@
   <v-container class="article-detail-page px-0 pt-0" fluid>
     <!-- Bouton retour flottant -->
     <v-btn
-      icon="mdi-arrow-left"
-      color="white"
       class="back-btn-float"
+      color="white"
       elevation="4"
+      icon="mdi-arrow-left"
       @click="goBack"
-    ></v-btn>
+    />
 
     <!-- Loading state -->
     <v-container v-if="!article" class="fill-height">
       <v-row align="center" justify="center">
-        <v-col cols="auto" class="text-center">
-          <v-progress-circular indeterminate color="primary" size="64"></v-progress-circular>
+        <v-col class="text-center" cols="auto">
+          <v-progress-circular color="primary" indeterminate size="64" />
           <p class="mt-4 text-medium-emphasis">Chargement de l'article...</p>
         </v-col>
       </v-row>
@@ -24,44 +24,44 @@
       <!-- Hero Section Immersive -->
       <section class="article-detail__hero-section">
         <v-img
-          :src="article.image"
-          height="60vh"
-          cover
           class="article-detail__hero-image"
+          cover
+          height="60vh"
+          :src="article.image"
         >
           <div class="article-detail__hero-overlay fill-height d-flex flex-column justify-end">
             <v-container class="content-width">
               <v-chip
-                color="primary"
                 class="mb-4 font-weight-bold"
+                color="primary"
                 size="large"
                 variant="flat"
               >
-                <v-icon start size="small">mdi-folder</v-icon>
+                <v-icon size="small" start>mdi-folder</v-icon>
                 {{ article.category }}
               </v-chip>
 
-                <div class="d-flex align-center justify-space-between mb-6">
-                  <h1 class="article-detail__title text-h2 text-sm-h1 font-weight-bold text-white mb-0">
-                    {{ article.title }}
-                  </h1>
-                  
-                  <!-- Bouton Favori -->
-                  <v-btn
-                    v-if="userStore.isLoggedIn"
-                    :icon="isFavorite ? 'mdi-heart' : 'mdi-heart-outline'"
-                    :color="isFavorite ? 'primary' : 'white'"
-                    variant="tonal"
-                    size="large"
-                    class="ml-4 favorite-btn"
-                    @click="toggleFavorite"
-                    :loading="isFavoriteLoading"
-                  ></v-btn>
-                </div>
+              <div class="d-flex align-center justify-space-between mb-6">
+                <h1 class="article-detail__title text-h2 text-sm-h1 font-weight-bold text-white mb-0">
+                  {{ article.title }}
+                </h1>
+
+                <!-- Bouton Favori -->
+                <v-btn
+                  v-if="userStore.isLoggedIn"
+                  class="ml-4 favorite-btn"
+                  :color="isFavorite ? 'primary' : 'white'"
+                  :icon="isFavorite ? 'mdi-heart' : 'mdi-heart-outline'"
+                  :loading="isFavoriteLoading"
+                  size="large"
+                  variant="tonal"
+                  @click="toggleFavorite"
+                />
+              </div>
 
               <div class="article-detail__meta d-flex align-center flex-wrap gap-6 mb-12">
                 <div class="d-flex align-center">
-                  <v-avatar size="40" class="mr-3 author-avatar">
+                  <v-avatar class="mr-3 author-avatar" size="40">
                     <span class="text-white font-weight-bold">{{ authorInitials }}</span>
                   </v-avatar>
                   <span class="text-h6 text-white">{{ article.author || 'Équipe CesiZen' }}</span>
@@ -90,7 +90,7 @@
               variant="text"
             >
               <div class="d-flex align-start quote-container">
-                <v-icon size="48" color="primary" class="mr-4 mt-n2">mdi-format-quote-open</v-icon>
+                <v-icon class="mr-4 mt-n2" color="primary" size="48">mdi-format-quote-open</v-icon>
                 <p class="text-h5 font-italic text-primary line-height-relaxed mb-0">
                   {{ article.description }}
                 </p>
@@ -103,16 +103,16 @@
         <section v-if="suggestedArticles.length > 0" class="mt-16 pb-16">
           <div class="d-flex align-center mb-8">
             <h2 class="text-h4 font-weight-bold text-white">Continuer la lecture</h2>
-            <v-divider class="ml-6 border-opacity-25"></v-divider>
+            <v-divider class="ml-6 border-opacity-25" />
           </div>
-          
+
           <v-row>
             <v-col
               v-for="suggested in suggestedArticles"
               :key="suggested.id"
               cols="12"
-              sm="6"
               md="4"
+              sm="6"
             >
               <ArticleCard :article="suggested" />
             </v-col>
@@ -124,124 +124,124 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-import axios from 'axios'
-import { useUserStore } from '@/stores/user'
-import ArticleCard from '@/components/ArticleCard.vue'
+  import axios from 'axios'
+  import { computed, onMounted, ref, watch } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
+  import ArticleCard from '@/components/ArticleCard.vue'
+  import { useUserStore } from '@/stores/user'
 
-const route = useRoute()
-const router = useRouter()
-const userStore = useUserStore()
+  const route = useRoute()
+  const router = useRouter()
+  const userStore = useUserStore()
 
-// État
-const article = ref(null)
-const suggestedArticles = ref([])
-const isFavorite = ref(false)
-const isFavoriteLoading = ref(false)
+  // État
+  const article = ref(null)
+  const suggestedArticles = ref([])
+  const isFavorite = ref(false)
+  const isFavoriteLoading = ref(false)
 
-// Computed properties
-const authorInitials = computed(() => {
-  const author = article.value?.author || 'Équipe CesiZen'
-  return author.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
-})
-
-const formattedDate = computed(() => {
-  if (!article.value?.date) return ''
-  const date = new Date(article.value.date)
-  return date.toLocaleDateString('fr-FR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
+  // Computed properties
+  const authorInitials = computed(() => {
+    const author = article.value?.author || 'Équipe CesiZen'
+    return author.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   })
-})
 
-// Méthodes
-const goBack = () => {
-  router.push('/Catalogue')
-}
-
-const loadArticle = async () => {
-  const articleId = route.params.id
-  try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles/${articleId}`)
-    const rawArticle = response.data
-    
-    article.value = {
-      ...rawArticle,
-      image: rawArticle.media_url,
-      description: rawArticle.summary,
-      date: rawArticle.created_at ? rawArticle.created_at.split('T')[0] : ''
-    }
-    
-    // Charger aussi les suggestions depuis l'API
-    const suggestionsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
-    suggestedArticles.value = suggestionsResponse.data
-      .filter(a => a.id !== article.value.id)
-      .slice(0, 3)
-      .map(a => ({
-        ...a,
-        image: a.media_url,
-        description: a.summary
-      }))
-
-    if (userStore.isLoggedIn) {
-      checkFavoriteStatus()
-    }
-  } catch (error) {
-    console.error('Erreur lors du chargement de l\'article:', error)
-  }
-}
-
-const checkFavoriteStatus = async () => {
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`, {
-      headers: { 'Authorization': `Bearer ${userStore.token}` }
+  const formattedDate = computed(() => {
+    if (!article.value?.date) return ''
+    const date = new Date(article.value.date)
+    return date.toLocaleDateString('fr-FR', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric',
     })
-    const data = await response.json()
-    isFavorite.value = data.isFavorite
-  } catch (e) {
-    console.error('Erreur check favorite:', e)
-  }
-}
+  })
 
-const toggleFavorite = async () => {
-  if (isFavoriteLoading.value) return
-  isFavoriteLoading.value = true
-  
-  const method = isFavorite.value ? 'DELETE' : 'POST'
-  const url = `${import.meta.env.VITE_API_URL}/api/favorites/articles${method === 'DELETE' ? `?userId=${userStore.user.id}&articleId=${article.value.id}` : ''}`
-  
-  try {
-    const response = await fetch(url, {
-      method,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${userStore.token}`
-      },
-      body: method === 'POST' ? JSON.stringify({ userId: userStore.user.id, articleId: article.value.id }) : null
-    })
-    
-    if (response.ok) {
-      isFavorite.value = !isFavorite.value
+  // Méthodes
+  function goBack () {
+    router.push('/Catalogue')
+  }
+
+  async function loadArticle () {
+    const articleId = route.params.id
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles/${articleId}`)
+      const rawArticle = response.data
+
+      article.value = {
+        ...rawArticle,
+        image: rawArticle.media_url,
+        description: rawArticle.summary,
+        date: rawArticle.created_at ? rawArticle.created_at.split('T')[0] : '',
+      }
+
+      // Charger aussi les suggestions depuis l'API
+      const suggestionsResponse = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
+      suggestedArticles.value = suggestionsResponse.data
+        .filter(a => a.id !== article.value.id)
+        .slice(0, 3)
+        .map(a => ({
+          ...a,
+          image: a.media_url,
+          description: a.summary,
+        }))
+
+      if (userStore.isLoggedIn) {
+        checkFavoriteStatus()
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de l\'article:', error)
     }
-  } catch (e) {
-    console.error('Erreur toggle favorite:', e)
-  } finally {
-    isFavoriteLoading.value = false
   }
-}
 
-// Watchers
-watch(() => route.params.id, () => {
-  loadArticle()
-  window.scrollTo({ top: 0, behavior: 'smooth' })
-})
+  async function checkFavoriteStatus () {
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/check?userId=${userStore.user.id}&articleId=${article.value.id}`, {
+        headers: { Authorization: `Bearer ${userStore.token}` },
+      })
+      const data = await response.json()
+      isFavorite.value = data.isFavorite
+    } catch (error) {
+      console.error('Erreur check favorite:', error)
+    }
+  }
 
-// Lifecycle
-onMounted(() => {
-  loadArticle()
-})
+  async function toggleFavorite () {
+    if (isFavoriteLoading.value) return
+    isFavoriteLoading.value = true
+
+    const method = isFavorite.value ? 'DELETE' : 'POST'
+    const url = `${import.meta.env.VITE_API_URL}/api/favorites/articles${method === 'DELETE' ? `?userId=${userStore.user.id}&articleId=${article.value.id}` : ''}`
+
+    try {
+      const response = await fetch(url, {
+        method,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userStore.token}`,
+        },
+        body: method === 'POST' ? JSON.stringify({ userId: userStore.user.id, articleId: article.value.id }) : null,
+      })
+
+      if (response.ok) {
+        isFavorite.value = !isFavorite.value
+      }
+    } catch (error) {
+      console.error('Erreur toggle favorite:', error)
+    } finally {
+      isFavoriteLoading.value = false
+    }
+  }
+
+  // Watchers
+  watch(() => route.params.id, () => {
+    loadArticle()
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
+
+  // Lifecycle
+  onMounted(() => {
+    loadArticle()
+  })
 </script>
 
 <style scoped>
@@ -362,7 +362,7 @@ onMounted(() => {
   .article-detail__hero-overlay {
     padding-bottom: 40px;
   }
-  
+
   .article-body-container {
     margin-top: -20px;
   }

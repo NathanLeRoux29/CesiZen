@@ -11,7 +11,7 @@ export const articles = [
 Le principe est simple : s'asseoir dans un endroit calme, fermer les yeux et se concentrer sur sa respiration. Lorsque des pensées surgissent, on les observe sans jugement avant de ramener doucement son attention vers le souffle.
 
 À long terme, la méditation modifie la structure même du cerveau, renforçant les zones liées à l'empathie et à la régulation émotionnelle. C'est un véritable entraînement pour l'esprit, permettant de naviguer avec plus de sérénité dans les défis du quotidien.`,
-    date: '2024-01-15'
+    date: '2024-01-15',
   },
   {
     id: 2,
@@ -24,7 +24,7 @@ Le principe est simple : s'asseoir dans un endroit calme, fermer les yeux et se 
 Une routine efficace commence souvent par la posture de l'enfant pour se centrer, suivie du "chat-vache" pour mobiliser la colonne vertébrale. Les salutations au soleil sont ensuite idéales pour faire monter la chaleur corporelle et stimuler la circulation sanguine.
 
 Même si vous n'avez que 15 minutes, l'important est la régularité. Le yoga n'est pas seulement une question de souplesse physique, c'est une invitation à l'écoute de soi et à la présence, créant un espace de calme avant le tumulte de la journée.`,
-    date: '2024-01-14'
+    date: '2024-01-14',
   },
   {
     id: 3,
@@ -37,7 +37,7 @@ Même si vous n'avez que 15 minutes, l'important est la régularité. Le yoga n'
 La technique de la cohérence cardiaque consiste à inspirer pendant 5 secondes et à expirer pendant 5 secondes. En pratiquant cela pendant 5 minutes, 3 fois par jour, on peut stabiliser son rythme cardiaque et apaiser instantanément le mental.
 
 Une autre méthode efficace est la respiration abdominale. En gonflant le ventre à l'inspiration, on stimule le nerf vague, ce qui envoie un signal de relaxation immédiat au cerveau. C'est une technique discrète que vous pouvez pratiquer n'importe où, que ce soit dans les transports ou avant une réunion importante.`,
-    date: '2024-01-13'
+    date: '2024-01-13',
   },
   {
     id: 4,
@@ -46,7 +46,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Sommeil',
     description: 'Conseils et astuces pour retrouver un sommeil de qualité.',
     content: 'Un bon sommeil est essentiel pour votre bien-être général...',
-    date: '2024-01-12'
+    date: '2024-01-12',
   },
   {
     id: 5,
@@ -55,7 +55,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Nutrition',
     description: 'Découvrez les aliments qui favorisent une bonne santé mentale.',
     content: 'Ce que vous mangez a un impact direct sur votre humeur et votre énergie...',
-    date: '2024-01-11'
+    date: '2024-01-11',
   },
   {
     id: 6,
@@ -64,7 +64,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Nature',
     description: 'Passer du temps dans la nature peut considérablement améliorer votre bien-être.',
     content: 'Les études montrent que passer du temps en extérieur réduit le stress...',
-    date: '2024-01-10'
+    date: '2024-01-10',
   },
   {
     id: 7,
@@ -73,7 +73,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Émotions',
     description: 'Apprenez à identifier et gérer vos émotions pour une vie plus équilibrée.',
     content: 'La gestion des émotions est une compétence essentielle pour le bien-être...',
-    date: '2024-01-09'
+    date: '2024-01-09',
   },
   {
     id: 8,
@@ -82,7 +82,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Sport',
     description: 'Comment l\'activité physique peut améliorer votre santé mentale.',
     content: 'Le sport libère des endorphines qui améliorent l\'humeur...',
-    date: '2024-01-08'
+    date: '2024-01-08',
   },
   {
     id: 9,
@@ -91,7 +91,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Maison',
     description: 'Transformez votre intérieur en un sanctuaire de paix.',
     content: 'Un espace bien organisé et apaisant contribue à votre bien-être...',
-    date: '2024-01-07'
+    date: '2024-01-07',
   },
   {
     id: 10,
@@ -100,7 +100,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Social',
     description: 'Pourquoi les connections humaines sont essentielles à votre bien-être.',
     content: 'Les relations sociales jouent un rôle crucial dans notre santé mentale...',
-    date: '2024-01-06'
+    date: '2024-01-06',
   },
   {
     id: 11,
@@ -109,7 +109,7 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Technologie',
     description: 'Apprenez à trouver l\'équilibre avec la technologie.',
     content: 'Une pause numérique peut faire wonders pour votre esprit...',
-    date: '2024-01-05'
+    date: '2024-01-05',
   },
   {
     id: 12,
@@ -118,12 +118,12 @@ Une autre méthode efficace est la respiration abdominale. En gonflant le ventre
     category: 'Psychologie',
     description: 'Cultivez la gratitude pour transformer votre vie.',
     content: 'La gratitude est associée à une meilleure santé mentale...',
-    date: '2024-01-04'
-  }
+    date: '2024-01-04',
+  },
 ]
 
 // Fonction pour obtenir l'article du jour
-export const getArticleOfTheDay = () => {
+export function getArticleOfTheDay () {
   const today = new Date()
   const dayOfYear = Math.floor((today - new Date(today.getFullYear(), 0, 0)) / (1000 * 60 * 60 * 24))
   const index = dayOfYear % articles.length
@@ -131,24 +131,24 @@ export const getArticleOfTheDay = () => {
 }
 
 // Fonction pour obtenir des articles suggérés (3 articles aléatoires différents de l'article du jour)
-export const getSuggestedArticles = (excludeId = null) => {
+export function getSuggestedArticles (excludeId = null) {
   const filtered = excludeId ? articles.filter(a => a.id !== excludeId) : articles
   const shuffled = [...filtered].sort(() => Math.random() - 0.5)
   return shuffled.slice(0, 3)
 }
 
 // Fonction pour charger plus d'articles (pagination)
-export const getArticles = (page = 1, limit = 6) => {
+export function getArticles (page = 1, limit = 6) {
   const start = (page - 1) * limit
   const end = start + limit
   return {
     articles: articles.slice(start, end),
     hasMore: end < articles.length,
-    total: articles.length
+    total: articles.length,
   }
 }
 
 // Fonction pour obtenir un article par ID
-export const getArticleById = (id) => {
+export function getArticleById (id) {
   return articles.find(a => a.id === id)
 }

@@ -4,12 +4,12 @@
  * Framework documentation: https://vuetifyjs.com`
  */
 
-// Styles
-import '@mdi/font/css/materialdesignicons.css'
-import 'vuetify/styles'
-
 // Composables
 import { createVuetify } from 'vuetify'
+// Styles
+import '@mdi/font/css/materialdesignicons.css'
+
+import 'vuetify/styles'
 
 export default createVuetify({
   theme: {
@@ -25,5 +25,5 @@ export default createVuetify({
         },
       },
     },
-  }
+  },
 })

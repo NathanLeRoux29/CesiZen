@@ -8,6 +8,7 @@ on:
       - dev
       - preprod
       - main
+      - test/ci-issue-creation
   workflow_dispatch:
 
 jobs:

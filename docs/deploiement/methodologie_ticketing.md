@@ -125,7 +125,23 @@ Un tableau de bord visuel suit l'avancement de toutes les issues :
 | **En review** | PR ouverte, en attente de validation |
 | **Terminé** | Issues mergées et fermées |
 
-Les issues se déplacent automatiquement selon leur état (ouvert → PR créée → mergée).
+**Automatisations actives (GitHub Projects) :**
+
+| Déclencheur | Colonne cible |
+|-------------|---------------|
+| Issue créée | `Backlog` |
+| Issue réouverte | `À faire` |
+| PR mergée | `Terminé` |
+| Issue fermée | `Terminé` |
+
+**Déplacements manuels :**
+
+| Moment | Action |
+|--------|--------|
+| Tu commences à travailler | Déplacer en `En cours` |
+| Tu ouvres une PR | Déplacer en `En review` |
+
+Le déplacement "assigné → En cours" n'est pas automatisable nativement sur GitHub Projects — il se fait manuellement au moment où le développeur commence le travail.
 
 ---
 

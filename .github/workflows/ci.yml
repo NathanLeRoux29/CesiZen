@@ -10,6 +10,11 @@ on:
       - main
   workflow_dispatch:
 
+# Permissions nécessaires pour créer des issues automatiquement en cas d'échec
+permissions:
+  issues: write
+  contents: read
+
 jobs:
   # Job 1 : tests unitaires du backend + audit de sécurité
   tests-backend:

@@ -137,7 +137,7 @@ feature/* / fix/* / security/* / docs/* / chore/* -> dev -> preprod -> main
 |---------|------------|----------------|
 | `main` | Protégée | PR obligatoire + CI valide |
 | `preprod` | Protégée | PR obligatoire + CI valide |
-| `dev` | Libre | CI valide |
+| `dev` | Protégée | PR obligatoire + CI valide |
 | `feature/*` | Libre | Créée depuis `dev` |
 | `fix/*` | Libre | Créée depuis `dev` |
 | `security/*` | Libre | Créée depuis `dev` |
@@ -148,10 +148,10 @@ feature/* / fix/* / security/* / docs/* / chore/* -> dev -> preprod -> main
 
 - Branches : `feature/nom`, `fix/nom`, `security/nom`, `docs/nom`, `chore/nom`
 - Commits : Convention Conventional Commits (`feat:`, `fix:`, `feat!:`, `chore:`, `docs:`)
-- Tags de version : SemVer `vMAJEUR.MINEUR.PATCH`
-  - `v0.1.0` — MVP (containerisation Docker + CI/CD)
-  - `v0.2.0` — Sécurisation
-  - `v1.0.0` — Première mise en production réelle
+- Tags de version : SemVer 
+  - `v0.0.1` — Fix
+  - `v0.1.0` — Mineur
+  - `v1.0.0` — Majeur
 
 ### 4.4 Procédure de création d'un tag de version
 

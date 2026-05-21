@@ -1,13 +1,82 @@
 # Méthodologie de gestion des tickets — CesiZen
 
-**Outil :** GitHub Issues  
 **Projet :** CesiZen — Plateforme de bien-être mental
+
+CesiZen dispose de deux canaux de ticketing complémentaires :
+
+| Canal | Acteurs | Outil |
+|-------|---------|-------|
+| **Signalements utilisateurs** | Visiteurs et utilisateurs de l'app | Formulaire in-app → Backoffice |
+| **Issues développeurs** | Équipe technique | GitHub Issues → Workflow dev |
 
 ---
 
-## 1. Organisation des issues
+## 1. Ticketing client — Signalements in-app
 
-### 1.1 Labels
+### 1.1 Présentation
+
+Tout visiteur peut signaler un problème via le bouton **"Signaler un problème"** présent en permanence dans le footer de l'application. Aucun compte n'est requis.
+
+Les signalements sont stockés en base de données MySQL et consultables par les administrateurs dans le backoffice à l'adresse `/admin/reports`.
+
+### 1.2 Formulaire de signalement
+
+| Champ | Obligatoire | Description |
+|-------|-------------|-------------|
+| Catégorie | Oui | Bug / Suggestion / Autre |
+| Description | Oui | Texte libre, 10–2000 caractères |
+| Email | Non | Pour recontacter l'utilisateur si nécessaire |
+| Page concernée | Non | Auto-rempli avec l'URL courante |
+
+**Protection anti-spam :** 5 soumissions maximum par minute et par IP.
+
+### 1.3 Statuts des signalements
+
+| Statut | Signification |
+|--------|---------------|
+| **Nouveau** | Signalement reçu, non traité |
+| **En cours** | En cours d'analyse ou de correction |
+| **Résolu** | Traité (corrigé, rejeté ou archivé) |
+
+### 1.4 Workflow de traitement
+
+```
+Utilisateur soumet un signalement (footer frontend)
+         │
+         ▼
+  Enregistré en base — statut : Nouveau
+         │
+         ▼
+  Admin consulte le backoffice (/admin/reports)
+         │
+         ▼
+  Analyse du signalement
+         │
+    ┌────┴──────────────────────┐
+  Actionnable                Non actionnable
+  (bug confirmé, suggestion)  (doublon, hors scope)
+    │                               │
+  Statut → En cours            Statut → Résolu
+    │
+    ▼
+  Issue GitHub créée (section 2)
+    │
+    ▼
+  Workflow développeur normal
+    │
+    ▼
+  Statut signalement → Résolu
+```
+
+### 1.5 Lien avec GitHub Issues
+
+Lorsqu'un signalement donne lieu à une issue GitHub, indiquer dans la description de l'issue la catégorie et la date du signalement pour maintenir la traçabilité. Il n'y a pas de lien automatique entre les deux systèmes.
+
+---
+
+## 2. Ticketing développeur — GitHub Issues
+
+### 2.1 Labels
 
 | Label | Couleur | Usage |
 |-------|---------|-------|
@@ -20,7 +89,7 @@
 
 Un label de type (`bug`, `feat`, `security`...) et un label de priorité (`urgent`) peuvent être combinés sur une même issue.
 
-### 1.2 Templates d'issues
+### 2.2 Templates d'issues
 
 Trois formulaires structurés sont disponibles lors de la création d'une issue :
 
@@ -30,7 +99,7 @@ Trois formulaires structurés sont disponibles lors de la création d'une issue 
 | **Demande de fonctionnalité** | Proposer une évolution avec critères d'acceptation |
 | **Rapport de sécurité** | Signaler une vulnérabilité avec niveau de sévérité |
 
-### 1.3 Milestones
+### 2.3 Milestones
 
 Les issues sont regroupées par version exemple:
 
@@ -42,12 +111,12 @@ Les issues sont regroupées par version exemple:
 
 ---
 
-## 2. Workflow de traitement d'un ticket
+## 3. Workflow développeur
 
-### 2.1 Schéma complet
+### 3.1 Schéma complet
 
 ```
-Signalement (client / équipe)
+Signalement (client via app / équipe interne)
          │
          ▼
   Issue créée sur GitHub
@@ -88,7 +157,7 @@ Signalement (client / équipe)
   (selon la criticité du fix)
 ```
 
-### 2.2 Fermeture automatique d'une issue
+### 3.2 Fermeture automatique d'une issue
 
 En incluant `Closes #XX` dans le message de la PR (où `XX` est le numéro de l'issue), GitHub ferme automatiquement l'issue au moment du merge.
 
@@ -101,7 +170,7 @@ Closes #3
 
 ---
 
-## 3. Règles de priorité
+## 4. Règles de priorité
 
 | Sévérité | Délai de prise en charge | Branche cible |
 |----------|--------------------------|---------------|
@@ -113,7 +182,7 @@ Closes #3
 
 ---
 
-## 4. Tableau Kanban — GitHub Projects
+## 5. Tableau Kanban — GitHub Projects
 
 Un tableau de bord visuel suit l'avancement de toutes les issues :
 
@@ -141,32 +210,36 @@ Un tableau de bord visuel suit l'avancement de toutes les issues :
 | Tu commences à travailler | Déplacer en `En cours` |
 | Tu ouvres une PR | Déplacer en `En review` |
 
-Le déplacement "assigné → En cours" n'est pas automatisable nativement sur GitHub Projects — il se fait manuellement au moment où le développeur commence le travail.
-
 ---
 
-## 5. Exemple concret — Traitement d'un bug
+## 6. Exemple concret — Traitement d'un bug signalé par un utilisateur
 
-**Situation :** Un utilisateur signale que les caractères accentués s'affichent mal.
+**Situation :** Un utilisateur signale via l'app que les caractères accentués s'affichent mal.
 
 ```
-1. Création de l'issue
+1. L'admin voit le signalement dans le backoffice (/admin/reports)
+   Catégorie : bug
+   Description : "Les titres d'articles affichent des caractères bizarres (Méditation → MÃ©ditation)"
+   Statut → En cours
+
+2. Création de l'issue GitHub
    Title : [BUG] Caractères accentués corrompus (Méditation → MÃ©ditation)
    Label : bug + urgent
    Milestone : v0.1.0 — MVP
    Assigné : NathanLeRoux29
 
-2. Création de la branche
+3. Création de la branche
    git checkout -b fix/encodage-utf8
 
-3. Correction du code + tests locaux
+4. Correction du code + tests locaux
 
-4. Pull Request
+5. Pull Request
    Title : "fix: correction encodage UTF-8 MySQL"
    Body : "Closes #1"
    → CI lance les tests automatiquement
 
-5. Merge après CI verte
+6. Merge après CI verte
    → Issue #1 fermée automatiquement
-   → Carte déplacée dans "Terminé" sur le Kanban
+
+7. Signalement backoffice → Statut : Résolu
 ```

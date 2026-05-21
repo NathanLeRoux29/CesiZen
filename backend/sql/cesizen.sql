@@ -134,3 +134,14 @@ INSERT INTO `favorites` (`id`, `user_id`, `article_id`, `activity_id`, `created_
 (1, 1, 1, NULL, NOW()),
 (2, 1, 3, NULL, NOW()),
 (3, 2, 2, NULL, NOW());
+
+CREATE TABLE `reports` (
+  `id`          INT AUTO_INCREMENT PRIMARY KEY,
+  `category`    ENUM('bug', 'suggestion', 'autre') NOT NULL,
+  `description` TEXT NOT NULL,
+  `email`       VARCHAR(255) NULL,
+  `page_url`    VARCHAR(500) NULL,
+  `status`      ENUM('nouveau', 'en_cours', 'resolu') DEFAULT 'nouveau',
+  `created_at`  DATETIME DEFAULT CURRENT_TIMESTAMP,
+  `updated_at`  DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+);

@@ -3,6 +3,7 @@ import Login from '../views/Login.vue'
 import Dashboard from '../views/Dashboard.vue'
 import Users from '../views/Users.vue'
 import Articles from '../views/Articles.vue'
+import Reports from '../views/Reports.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
@@ -16,6 +17,7 @@ const routes = [
       { path: 'dashboard', component: Dashboard },
       { path: 'users', component: Users },
       { path: 'articles', component: Articles },
+      { path: 'reports', component: Reports },
     ]
   }
 ]

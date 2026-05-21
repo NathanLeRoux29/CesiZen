@@ -1,4 +1,4 @@
-# CesiZen — Plateforme de Bien-être Mental
+# CesiZen - Plateforme de Bien-être Mental
 
 ![CI](https://github.com/NathanLeRoux29/CesiZen/actions/workflows/ci.yml/badge.svg)
 ![Release](https://github.com/NathanLeRoux29/CesiZen/actions/workflows/release.yml/badge.svg)
@@ -10,7 +10,8 @@ Face aux problématiques de stress et de surcharge mentale, elle offre des outil
 
 - **Exercices de respiration guidée** — techniques de cohérence cardiaque paramétrables (durée, rythme, son, vibration)
 - **Articles bien-être** — contenu éditorial organisé par catégorie, avec système de favoris
-- **Backoffice d'administration** — gestion complète des articles, des utilisateurs et des droits d'accès
+- **Signalement de problèmes** — bouton permanent dans le footer, formulaire modal (catégorie, description, email, page), rate limiting anti-spam, liste dans le backoffice avec filtres et gestion de statut
+- **Backoffice d'administration** — gestion complète des articles, des utilisateurs, des droits d'accès et des signalements
 
 L'application repose sur une architecture **API REST / SPA** conteneurisée via Docker, avec une séparation stricte entre l'interface grand public (frontend), l'interface d'administration (backoffice) et le serveur (backend Node.js). Elle est déployable en production sur un simple VPS Ubuntu avec `docker compose up`.
 
@@ -159,7 +160,7 @@ npm run test:coverage  # Avec couverture de code
 | [Plan de déploiement](docs/deploiement/plan_deploiement.md) | Architecture, environnements, CI/CD, rollback |
 | [Plan de sécurité](docs/deploiement/plan_securite.md) | Analyse OWASP, RGPD, gestion de crise |
 | [Veille technologique](docs/deploiement/veille_technologique.md) | Outils de surveillance, audit SAST/DAST |
-| [Méthodologie ticketing](docs/deploiement/methodologie_ticketing.md) | GitHub Issues, workflow, Kanban |
+| [Méthodologie ticketing](docs/deploiement/methodologie_ticketing.md) | Signalements in-app (client), GitHub Issues (développeur), workflow, Kanban |
 | [Cahier de tests](docs/cahier_de_tests.md) | Tests unitaires et non-régression |
 | [API Swagger](http://localhost:3001/api-docs) | Documentation interactive (backend en cours d'exécution) |
 

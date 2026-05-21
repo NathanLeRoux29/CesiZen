@@ -33,46 +33,57 @@ services:
       JWT_EXPIRES_IN: 24h
       NODE_ENV: ${NODE_ENV}
     ports:
-      - "3001:3001"                              
+      - "127.0.0.1:3001:3001"                              
     depends_on:
       mysql:
-        condition: service_healthy               
+        condition: service_healthy
     networks:
-      - backend-network                          
-      - public-network                           
-    restart: unless-stopped                      
+      - backend-network
+      - public-network
+    restart: unless-stopped
+    healthcheck:
+      # Vérifie que l'API répond avant de démarrer frontend et backoffice
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3001/"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # CesiZen Vue.js
   frontend:
     build:
-      context: ./frontend                        
+      context: ./frontend
       args:
-        VITE_API_URL: ${VITE_API_URL}            
+        VITE_API_URL: ${VITE_API_URL}
     ports:
-      - "5173:80"                                
+      - "127.0.0.1:5173:80"
     networks:
       - public-network
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
 
-  # BackOffice Vue.js ---
+  # BackOffice Vue.js
   backoffice:
     build:
       context: ./backoffice
       args:
         VITE_API_URL: ${VITE_API_URL}
     ports:
-      - "5174:80"
+      - "127.0.0.1:5174:80"
     networks:
       - public-network
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
+    restart: unless-stopped
+
 
   # Monitoring Uptime Kuma
   uptime-kuma:
     image: louislam/uptime-kuma:1               # Image officielle, pas de build custom nécessaire
     ports:
-      - "3002:3001"                              # Uptime Kuma écoute sur 3001 en interne
+      - "127.0.0.1:3002:3001"                              # Uptime Kuma écoute sur 3001 en interne
     volumes:
       - uptime_kuma_data:/app/data              # Sauvegarde la configuration des monitors
     networks:

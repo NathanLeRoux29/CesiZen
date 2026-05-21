@@ -8,21 +8,21 @@
     <v-card class="breathing-exercise-card">
       <!-- Barre d'outils -->
       <v-toolbar class="exercise-toolbar" elevation="0">
-        <v-btn 
-          icon 
-          class="bg-primary" 
+        <v-btn
+          class="bg-primary"
+          icon
           @click="quitExercise"
         >
           <v-icon>mdi-close</v-icon>
         </v-btn>
-        
+
         <v-toolbar-title class="text-center">
           {{ exerciseTitle }}
         </v-toolbar-title>
-        
-        <v-btn 
-          icon 
-          class="bg-primary" 
+
+        <v-btn
+          class="bg-primary"
+          icon
           @click="toggleSound"
         >
           <v-icon>{{ soundEnabled ? 'mdi-volume-high' : 'mdi-volume-off' }}</v-icon>
@@ -39,7 +39,7 @@
 
         <!-- Cercle de respiration -->
         <div class="breathing-circle-container">
-          <div 
+          <div
             class="breathing-circle"
             :class="[currentPhase, { 'animating': isAnimating }]"
             :style="circleStyle"
@@ -60,19 +60,19 @@
           <v-btn
             v-if="!isRunning"
             color="primary"
-            size="x-large"
             rounded="xl"
+            size="x-large"
             @click="startExercise"
           >
             <v-icon start>mdi-play</v-icon>
             Commencer
           </v-btn>
-          
+
           <v-btn
             v-else
             :color="isPaused ? 'primary' : 'error'"
-            size="x-large"
             rounded="xl"
+            size="x-large"
             @click="pauseExercise"
           >
             <v-icon start>{{ isPaused ? 'mdi-play' : 'mdi-pause' }}</v-icon>
@@ -83,11 +83,11 @@
         <!-- Barre de progression -->
         <div class="progress-container">
           <v-progress-linear
-            :model-value="progressValue"
             color="primary"
             height="8"
+            :model-value="progressValue"
             rounded
-          ></v-progress-linear>
+          />
         </div>
       </div>
     </v-card>
@@ -95,305 +95,305 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onUnmounted } from 'vue'
+  import { computed, onUnmounted, ref, watch } from 'vue'
 
-// Props
-const props = defineProps({
-  modelValue: {
-    type: Boolean,
-    default: false
-  },
-  config: {
-    type: Object,
-    required: true
+  // Props
+  const props = defineProps({
+    modelValue: {
+      type: Boolean,
+      default: false,
+    },
+    config: {
+      type: Object,
+      required: true,
+    },
+  })
+
+  // Émissions
+  const emit = defineEmits(['update:modelValue', 'complete'])
+
+  // État local
+  const isOpen = ref(props.modelValue)
+  const isRunning = ref(false)
+  const isPaused = ref(false)
+  const timeRemaining = ref(0)
+  const currentCycle = ref(1)
+  const currentPhase = ref('inhale') // inhale, hold-in, exhale, hold-out
+  const currentInstruction = ref('Respirez')
+  const isAnimating = ref(false)
+  const soundEnabled = ref(true)
+  let timerInterval = null
+  let phaseInterval = null
+
+  // Techniques de respiration
+  const techniques = {
+    748: {
+      name: 'Le 7-4-8',
+      inhale: 7,
+      holdIn: 4,
+      exhale: 8,
+      holdOut: 0,
+      instructions: {
+        inhale: 'Inspirez profondément',
+        holdIn: 'Retenez votre souffle',
+        exhale: 'Expirez lentement',
+        holdOut: '',
+      },
+    },
+    55: {
+      name: 'Le 5-5',
+      inhale: 5,
+      holdIn: 0,
+      exhale: 5,
+      holdOut: 0,
+      instructions: {
+        inhale: 'Inspirez',
+        holdIn: '',
+        exhale: 'Expirez',
+        holdOut: '',
+      },
+    },
+    46: {
+      name: 'Le 4-6',
+      inhale: 4,
+      holdIn: 0,
+      exhale: 6,
+      holdOut: 0,
+      instructions: {
+        inhale: 'Inspirez',
+        holdIn: '',
+        exhale: 'Expirez',
+        holdOut: '',
+      },
+    },
+    custom: {
+      name: 'Personnalisé',
+      instructions: {
+        inhale: 'Inspirez',
+        holdIn: 'Retenez',
+        exhale: 'Expirez',
+        holdOut: 'Retenez',
+      },
+    },
   }
-})
 
-// Émissions
-const emit = defineEmits(['update:modelValue', 'complete'])
+  // Computed
+  const technique = computed(() => {
+    const base = techniques[props.config.technique] || techniques['748']
+    if (props.config.technique === 'custom') {
+      return {
+        ...base,
+        inhale: props.config.customIn || 4,
+        holdIn: props.config.customHold || 0,
+        exhale: props.config.customOut || 4,
+        holdOut: 0,
+      }
+    }
+    return base
+  })
+  const totalCycles = computed(() => props.config.cycles || 4)
+  const totalDuration = computed(() => props.config.duration * 60) // en secondes
 
-// État local
-const isOpen = ref(props.modelValue)
-const isRunning = ref(false)
-const isPaused = ref(false)
-const timeRemaining = ref(0)
-const currentCycle = ref(1)
-const currentPhase = ref('inhale') // inhale, hold-in, exhale, hold-out
-const currentInstruction = ref('Respirez')
-const isAnimating = ref(false)
-const soundEnabled = ref(true)
-let timerInterval = null
-let phaseInterval = null
+  const exerciseTitle = computed(() => {
+    return technique.value.name
+  })
 
-// Techniques de respiration
-const techniques = {
-  '748': {
-    name: 'Le 7-4-8',
-    inhale: 7,
-    holdIn: 4,
-    exhale: 8,
-    holdOut: 0,
-    instructions: {
-      inhale: 'Inspirez profondément',
-      holdIn: 'Retenez votre souffle',
-      exhale: 'Expirez lentement',
-      holdOut: ''
-    }
-  },
-  '55': {
-    name: 'Le 5-5',
-    inhale: 5,
-    holdIn: 0,
-    exhale: 5,
-    holdOut: 0,
-    instructions: {
-      inhale: 'Inspirez',
-      holdIn: '',
-      exhale: 'Expirez',
-      holdOut: ''
-    }
-  },
-  '46': {
-    name: 'Le 4-6',
-    inhale: 4,
-    holdIn: 0,
-    exhale: 6,
-    holdOut: 0,
-    instructions: {
-      inhale: 'Inspirez',
-      holdIn: '',
-      exhale: 'Expirez',
-      holdOut: ''
-    }
-  },
-  'custom': {
-    name: 'Personnalisé',
-    instructions: {
-      inhale: 'Inspirez',
-      holdIn: 'Retenez',
-      exhale: 'Expirez',
-      holdOut: 'Retenez'
-    }
-  }
-}
+  const progressValue = computed(() => {
+    const total = totalDuration.value
+    const elapsed = total - timeRemaining.value
+    return (elapsed / total) * 100
+  })
 
-// Computed
-const technique = computed(() => {
-  const base = techniques[props.config.technique] || techniques['748']
-  if (props.config.technique === 'custom') {
+  const circleStyle = computed(() => {
+    const phaseDurations = {
+      inhale: technique.value.inhale,
+      holdIn: technique.value.holdIn,
+      exhale: technique.value.exhale,
+      holdOut: technique.value.holdOut,
+    }
+
+    const currentDuration = phaseDurations[currentPhase.value] || 1
+    const maxDuration = Math.max(technique.value.inhale, technique.value.holdIn, technique.value.exhale, technique.value.holdOut)
+
+    // Calculer la taille du cercle en fonction de la phase
+    let scale = 1
+    if (currentPhase.value === 'inhale') {
+      scale = 1.5
+    } else if (currentPhase.value === 'exhale') {
+      scale = 1
+    }
+
     return {
-      ...base,
-      inhale: props.config.customIn || 4,
-      holdIn: props.config.customHold || 0,
-      exhale: props.config.customOut || 4,
-      holdOut: 0
+      transform: `scale(${scale})`,
+      transition: `transform ${currentDuration}s ease-in-out`,
     }
+  })
+
+  // Méthodes
+  function formatTime (seconds) {
+    const mins = Math.floor(seconds / 60)
+    const secs = seconds % 60
+    return `${mins}:${secs.toString().padStart(2, '0')}`
   }
-  return base
-})
-const totalCycles = computed(() => props.config.cycles || 4)
-const totalDuration = computed(() => props.config.duration * 60) // en secondes
 
-const exerciseTitle = computed(() => {
-  return technique.value.name
-})
+  function startExercise () {
+    isRunning.value = true
+    isPaused.value = false
+    timeRemaining.value = totalDuration.value
+    currentCycle.value = 1
 
-const progressValue = computed(() => {
-  const total = totalDuration.value
-  const elapsed = total - timeRemaining.value
-  return (elapsed / total) * 100
-})
-
-const circleStyle = computed(() => {
-  const phaseDurations = {
-    inhale: technique.value.inhale,
-    holdIn: technique.value.holdIn,
-    exhale: technique.value.exhale,
-    holdOut: technique.value.holdOut
-  }
-  
-  const currentDuration = phaseDurations[currentPhase.value] || 1
-  const maxDuration = Math.max(technique.value.inhale, technique.value.holdIn, technique.value.exhale, technique.value.holdOut)
-  
-  // Calculer la taille du cercle en fonction de la phase
-  let scale = 1
-  if (currentPhase.value === 'inhale') {
-    scale = 1.5
-  } else if (currentPhase.value === 'exhale') {
-    scale = 1
-  }
-  
-  return {
-    transform: `scale(${scale})`,
-    transition: `transform ${currentDuration}s ease-in-out`
-  }
-})
-
-// Méthodes
-const formatTime = (seconds) => {
-  const mins = Math.floor(seconds / 60)
-  const secs = seconds % 60
-  return `${mins}:${secs.toString().padStart(2, '0')}`
-}
-
-const startExercise = () => {
-  isRunning.value = true
-  isPaused.value = false
-  timeRemaining.value = totalDuration.value
-  currentCycle.value = 1
-  
-  startBreathingCycle()
-  startTimer()
-}
-
-const pauseExercise = () => {
-  isPaused.value = !isPaused.value
-  if (isPaused.value) {
-    clearInterval(timerInterval)
-    clearTimeout(phaseInterval)
-    isAnimating.value = false
-  } else {
+    startBreathingCycle()
     startTimer()
-    resumeBreathingCycle()
   }
-}
 
-const startTimer = () => {
-  timerInterval = setInterval(() => {
-    if (timeRemaining.value > 0) {
-      timeRemaining.value--
+  function pauseExercise () {
+    isPaused.value = !isPaused.value
+    if (isPaused.value) {
+      clearInterval(timerInterval)
+      clearTimeout(phaseInterval)
+      isAnimating.value = false
     } else {
-      completeExercise()
+      startTimer()
+      resumeBreathingCycle()
     }
-  }, 1000)
-}
+  }
 
-const startBreathingCycle = () => {
-  runPhase('inhale')
-}
-
-const resumeBreathingCycle = () => {
-  runPhase(currentPhase.value)
-}
-
-const runPhase = (phase) => {
-  const phaseConfig = technique.value
-  const duration = phaseConfig[phase === 'holdIn' ? 'holdIn' : phase === 'holdOut' ? 'holdOut' : phase]
-  
-  if (duration === 0) {
-    // Passer à la phase suivante si celle-ci n'a pas de durée
-    const phases = ['inhale', 'holdIn', 'exhale', 'holdOut']
-    const currentIndex = phases.indexOf(phase)
-    const nextPhase = phases[(currentIndex + 1) % 4]
-    
-    // Vérifier si on a terminé un cycle
-    if (nextPhase === 'inhale') {
-      if (currentCycle.value < totalCycles.value) {
-        currentCycle.value++
+  function startTimer () {
+    timerInterval = setInterval(() => {
+      if (timeRemaining.value > 0) {
+        timeRemaining.value--
       } else {
         completeExercise()
-        return
       }
-    }
-    
-    runPhase(nextPhase)
-    return
+    }, 1000)
   }
-  
-  currentPhase.value = phase
-  currentInstruction.value = phaseConfig.instructions[phase]
-  isAnimating.value = true
-  
-  // Jouer un son si activé
-  if (soundEnabled.value) {
-    playPhaseSound(phase)
+
+  function startBreathingCycle () {
+    runPhase('inhale')
   }
-  
-  // Vibrer si activé
-  if (props.config.vibrationEnabled) {
-    vibrate(props.config.vibrationIntensity)
+
+  function resumeBreathingCycle () {
+    runPhase(currentPhase.value)
   }
-  
-  clearTimeout(phaseInterval)
-  phaseInterval = setTimeout(() => {
-    isAnimating.value = false
-    
-    // Passer à la phase suivante
-    const phases = ['inhale', 'holdIn', 'exhale', 'holdOut']
-    const currentIndex = phases.indexOf(phase)
-    const nextPhase = phases[(currentIndex + 1) % 4]
-    
-    // Vérifier si on a terminé un cycle
-    if (nextPhase === 'inhale') {
-      if (currentCycle.value < totalCycles.value) {
-        currentCycle.value++
-      } else {
-        completeExercise()
-        return
+
+  function runPhase (phase) {
+    const phaseConfig = technique.value
+    const duration = phaseConfig[phase === 'holdIn' ? 'holdIn' : (phase === 'holdOut' ? 'holdOut' : phase)]
+
+    if (duration === 0) {
+      // Passer à la phase suivante si celle-ci n'a pas de durée
+      const phases = ['inhale', 'holdIn', 'exhale', 'holdOut']
+      const currentIndex = phases.indexOf(phase)
+      const nextPhase = phases[(currentIndex + 1) % 4]
+
+      // Vérifier si on a terminé un cycle
+      if (nextPhase === 'inhale') {
+        if (currentCycle.value < totalCycles.value) {
+          currentCycle.value++
+        } else {
+          completeExercise()
+          return
+        }
       }
-    }
-    
-    if (isRunning.value && !isPaused.value) {
+
       runPhase(nextPhase)
+      return
     }
-  }, duration * 1000)
-}
 
-const playPhaseSound = (phase) => {
+    currentPhase.value = phase
+    currentInstruction.value = phaseConfig.instructions[phase]
+    isAnimating.value = true
+
+    // Jouer un son si activé
+    if (soundEnabled.value) {
+      playPhaseSound(phase)
+    }
+
+    // Vibrer si activé
+    if (props.config.vibrationEnabled) {
+      vibrate(props.config.vibrationIntensity)
+    }
+
+    clearTimeout(phaseInterval)
+    phaseInterval = setTimeout(() => {
+      isAnimating.value = false
+
+      // Passer à la phase suivante
+      const phases = ['inhale', 'holdIn', 'exhale', 'holdOut']
+      const currentIndex = phases.indexOf(phase)
+      const nextPhase = phases[(currentIndex + 1) % 4]
+
+      // Vérifier si on a terminé un cycle
+      if (nextPhase === 'inhale') {
+        if (currentCycle.value < totalCycles.value) {
+          currentCycle.value++
+        } else {
+          completeExercise()
+          return
+        }
+      }
+
+      if (isRunning.value && !isPaused.value) {
+        runPhase(nextPhase)
+      }
+    }, duration * 1000)
+  }
+
+  function playPhaseSound (phase) {
   // Ici vous pouvez implémenter la lecture de sons
   // Pour l'instant, c'est une implémentation vide
-}
+  }
 
-const vibrate = (intensity) => {
-  if ('vibrate' in navigator) {
-    const durations = {
-      low: 100,
-      medium: 200,
-      high: 400
+  function vibrate (intensity) {
+    if ('vibrate' in navigator) {
+      const durations = {
+        low: 100,
+        medium: 200,
+        high: 400,
+      }
+      navigator.vibrate(durations[intensity] || 200)
     }
-    navigator.vibrate(durations[intensity] || 200)
   }
-}
 
-const toggleSound = () => {
-  soundEnabled.value = !soundEnabled.value
-}
-
-const quitExercise = () => {
-  isRunning.value = false
-  isPaused.value = false
-  clearInterval(timerInterval)
-  clearInterval(phaseInterval)
-  emit('update:modelValue', false)
-}
-
-const completeExercise = () => {
-  isRunning.value = false
-  clearInterval(timerInterval)
-  clearInterval(phaseInterval)
-  emit('complete')
-  emit('update:modelValue', false)
-}
-
-// Watchers
-watch(() => props.modelValue, (newVal) => {
-  isOpen.value = newVal
-  if (!newVal) {
-    quitExercise()
+  function toggleSound () {
+    soundEnabled.value = !soundEnabled.value
   }
-})
 
-watch(isOpen, (newVal) => {
-  if (!newVal) {
+  function quitExercise () {
+    isRunning.value = false
+    isPaused.value = false
+    clearInterval(timerInterval)
+    clearInterval(phaseInterval)
     emit('update:modelValue', false)
   }
-})
 
-// Lifecycle
-onUnmounted(() => {
-  clearInterval(timerInterval)
-  clearInterval(phaseInterval)
-})
+  function completeExercise () {
+    isRunning.value = false
+    clearInterval(timerInterval)
+    clearInterval(phaseInterval)
+    emit('complete')
+    emit('update:modelValue', false)
+  }
+
+  // Watchers
+  watch(() => props.modelValue, newVal => {
+    isOpen.value = newVal
+    if (!newVal) {
+      quitExercise()
+    }
+  })
+
+  watch(isOpen, newVal => {
+    if (!newVal) {
+      emit('update:modelValue', false)
+    }
+  })
+
+  // Lifecycle
+  onUnmounted(() => {
+    clearInterval(timerInterval)
+    clearInterval(phaseInterval)
+  })
 </script>
 
 <style scoped>

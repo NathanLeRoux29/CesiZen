@@ -2,27 +2,27 @@
   <v-card
     class="article-card cursor-pointer"
     :class="{ 'article-card--large': large }"
-    @click="goToArticle"
     elevation="0"
     rounded="md"
+    @click="goToArticle"
   >
     <v-img
-      :src="article.image"
-      :height="large ? 280 : 160"
-      cover
       class="article-card__image"
+      cover
+      :height="large ? 280 : 160"
+      :src="article.image"
     >
-      <template v-slot:placeholder>
-        <v-row class="fill-height ma-0" align="center" justify="center">
-          <v-progress-circular indeterminate color="primary"></v-progress-circular>
+      <template #placeholder>
+        <v-row align="center" class="fill-height ma-0" justify="center">
+          <v-progress-circular color="primary" indeterminate />
         </v-row>
       </template>
-      
+
       <div class="article-card__overlay">
         <v-chip
-          size="small"
-          color="primary"
           class="article-card__category"
+          color="primary"
+          size="small"
         >
           {{ article.category }}
         </v-chip>
@@ -30,8 +30,8 @@
     </v-img>
 
     <v-card-text class="article-card__content pt-3">
-      <h3 
-        class="article-card__title text-h6 font-weight-bold mb-2" 
+      <h3
+        class="article-card__title text-h6 font-weight-bold mb-2"
         :class="{ 'text-h5': large }"
       >
         {{ article.title }}
@@ -44,24 +44,24 @@
 </template>
 
 <script setup>
-import { useRouter } from 'vue-router'
+  import { useRouter } from 'vue-router'
 
-const props = defineProps({
-  article: {
-    type: Object,
-    required: true
-  },
-  large: {
-    type: Boolean,
-    default: false
+  const props = defineProps({
+    article: {
+      type: Object,
+      required: true,
+    },
+    large: {
+      type: Boolean,
+      default: false,
+    },
+  })
+
+  const router = useRouter()
+
+  function goToArticle () {
+    router.push(`/article/${props.article.id}`)
   }
-})
-
-const router = useRouter()
-
-const goToArticle = () => {
-  router.push(`/article/${props.article.id}`)
-}
 </script>
 
 <style scoped>

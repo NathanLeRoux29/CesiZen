@@ -1,6 +1,6 @@
 <template>
   <v-app>
-    <app-bar></app-bar>
+    <app-bar />
     <v-main class="py-0">
       <router-view />
     </v-main>
@@ -8,5 +8,5 @@
 </template>
 
 <script setup>
-import AppBar from './components/AppBar.vue';
+  import AppBar from './components/AppBar.vue'
 </script>

@@ -13,30 +13,30 @@
       <div class="glass-search-wrapper mb-6">
         <v-text-field
           v-model="searchQuery"
+          class="premium-search-field"
+          clearable
+          color="primary"
+          hide-details
           placeholder="Rechercher un article, une technique..."
           prepend-inner-icon="mdi-magnify"
           variant="plain"
-          color="primary"
-          hide-details
-          clearable
-          class="premium-search-field"
-        ></v-text-field>
+        />
       </div>
 
       <!-- Filtres par catégorie Glassmorphism -->
       <div class="glass-filters-wrapper">
         <v-chip-group
           v-model="selectedCategory"
-          selected-class="active-category"
-          mandatory
           class="premium-chip-group"
+          mandatory
+          selected-class="active-category"
         >
           <v-chip
             v-for="category in categories"
             :key="category"
+            class="premium-chip px-6"
             :value="category"
             variant="tonal"
-            class="premium-chip px-6"
           >
             {{ category }}
           </v-chip>
@@ -50,10 +50,10 @@
         <v-col
           v-for="article in displayedArticles"
           :key="article.id"
-          cols="12"
-          sm="6"
-          md="4"
           class="mb-6"
+          cols="12"
+          md="4"
+          sm="6"
         >
           <ArticleCard :article="article" />
         </v-col>
@@ -63,13 +63,13 @@
     <!-- Message si aucun article -->
     <v-fade-transition>
       <div v-if="displayedArticles.length === 0" class="text-center py-16 empty-state animate-fade-in">
-        <v-icon size="80" color="primary" class="mb-4 opacity-20">mdi-magnify-close</v-icon>
+        <v-icon class="mb-4 opacity-20" color="primary" size="80">mdi-magnify-close</v-icon>
         <h3 class="text-h5 text-white mb-2">Aucun résultat</h3>
         <p class="text-info opacity-70">Essayez de modifier vos filtres ou votre recherche</p>
         <v-btn
-          variant="text"
-          color="primary"
           class="mt-4"
+          color="primary"
+          variant="text"
           @click="resetFilters"
         >
           Réinitialiser tout
@@ -80,13 +80,13 @@
     <!-- Bouton charger plus -->
     <div v-if="hasMore" class="text-center mt-12 mb-16">
       <v-btn
+        class="load-more-btn"
         color="primary"
+        :loading="isLoading"
+        rounded="xl"
         size="x-large"
         variant="elevated"
-        rounded="xl"
-        :loading="isLoading"
         @click="loadMore"
-        class="load-more-btn"
       >
         <v-icon start>mdi-chevron-down</v-icon>
         DÉCOUVRIR PLUS D'ARTICLES
@@ -95,7 +95,7 @@
 
     <!-- Indicateur de fin de catalogue -->
     <div v-else-if="displayedArticles.length > 0" class="text-center mt-12 mb-16">
-      <v-divider class="mb-4 opacity-10"></v-divider>
+      <v-divider class="mb-4 opacity-10" />
       <p class="text-info opacity-50 text-uppercase letter-spacing-1 text-caption">
         Vous avez exploré tout le catalogue
       </p>
@@ -104,96 +104,96 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
-import axios from 'axios'
-import Title from '@/components/Title.vue'
-import ArticleCard from '@/components/ArticleCard.vue'
+  import axios from 'axios'
+  import { computed, onMounted, ref, watch } from 'vue'
+  import ArticleCard from '@/components/ArticleCard.vue'
+  import Title from '@/components/Title.vue'
 
-// Catégories
-const categories = ['Tous', 'Méditation', 'Yoga', 'Respiration', 'Sommeil', 'Nutrition', 'Nature', 'Émotions', 'Sport', 'Maison', 'Social', 'Technologie', 'Psychologie']
+  // Catégories
+  const categories = ['Tous', 'Méditation', 'Yoga', 'Respiration', 'Sommeil', 'Nutrition', 'Nature', 'Émotions', 'Sport', 'Maison', 'Social', 'Technologie', 'Psychologie']
 
-// État
-const allArticles = ref([])
-const selectedCategory = ref('Tous')
-const searchQuery = ref('')
-const currentPage = ref(1)
-const articlesPerPage = 6
-const isLoading = ref(false)
+  // État
+  const allArticles = ref([])
+  const selectedCategory = ref('Tous')
+  const searchQuery = ref('')
+  const currentPage = ref(1)
+  const articlesPerPage = 6
+  const isLoading = ref(false)
 
-// Chargement des articles depuis l'API
-const fetchArticles = async () => {
-  isLoading.value = true
-  try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
-    // On mappe les champs pour correspondre à ce que le front attendait des mocks
-    allArticles.value = response.data.map(a => ({
-      ...a,
-      image: a.media_url,
-      description: a.summary,
-      date: a.created_at ? a.created_at.split('T')[0] : ''
-    }))
-  } catch (error) {
-    console.error('Erreur lors du chargement des articles:', error)
-  } finally {
-    isLoading.value = false
+  // Chargement des articles depuis l'API
+  async function fetchArticles () {
+    isLoading.value = true
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
+      // On mappe les champs pour correspondre à ce que le front attendait des mocks
+      allArticles.value = response.data.map(a => ({
+        ...a,
+        image: a.media_url,
+        description: a.summary,
+        date: a.created_at ? a.created_at.split('T')[0] : '',
+      }))
+    } catch (error) {
+      console.error('Erreur lors du chargement des articles:', error)
+    } finally {
+      isLoading.value = false
+    }
   }
-}
 
-// Articles filtrés par catégorie et recherche
-const filteredArticles = computed(() => {
-  let result = allArticles.value
-  
-  // Filtre par catégorie
-  if (selectedCategory.value !== 'Tous') {
-    result = result.filter(article => article.category === selectedCategory.value)
+  // Articles filtrés par catégorie et recherche
+  const filteredArticles = computed(() => {
+    let result = allArticles.value
+
+    // Filtre par catégorie
+    if (selectedCategory.value !== 'Tous') {
+      result = result.filter(article => article.category === selectedCategory.value)
+    }
+
+    // Filtre par recherche
+    if (searchQuery.value) {
+      const query = searchQuery.value.toLowerCase()
+      result = result.filter(article =>
+        article.title.toLowerCase().includes(query)
+        || (article.description && article.description.toLowerCase().includes(query))
+        || article.category.toLowerCase().includes(query),
+      )
+    }
+
+    return result
+  })
+
+  // Articles affichés (avec pagination)
+  const displayedArticles = computed(() => {
+    return filteredArticles.value.slice(0, currentPage.value * articlesPerPage)
+  })
+
+  // Vérifie s'il y a plus d'articles à charger
+  const hasMore = computed(() => {
+    return displayedArticles.value.length < filteredArticles.value.length
+  })
+
+  // Charger plus d'articles
+  function loadMore () {
+    isLoading.value = true
+
+    // Simulation d'un délai de chargement pour l'UX
+    setTimeout(() => {
+      currentPage.value++
+      isLoading.value = false
+    }, 300)
   }
-  
-  // Filtre par recherche
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase()
-    result = result.filter(article => 
-      article.title.toLowerCase().includes(query) ||
-      (article.description && article.description.toLowerCase().includes(query)) ||
-      article.category.toLowerCase().includes(query)
-    )
+
+  function resetFilters () {
+    selectedCategory.value = 'Tous'
+    searchQuery.value = ''
   }
-  
-  return result
-})
 
-// Articles affichés (avec pagination)
-const displayedArticles = computed(() => {
-  return filteredArticles.value.slice(0, currentPage.value * articlesPerPage)
-})
+  // Réinitialiser la pagination quand la catégorie ou la recherche change
+  watch([selectedCategory, searchQuery], () => {
+    currentPage.value = 1
+  })
 
-// Vérifie s'il y a plus d'articles à charger
-const hasMore = computed(() => {
-  return displayedArticles.value.length < filteredArticles.value.length
-})
-
-// Charger plus d'articles
-const loadMore = () => {
-  isLoading.value = true
-  
-  // Simulation d'un délai de chargement pour l'UX
-  setTimeout(() => {
-    currentPage.value++
-    isLoading.value = false
-  }, 300)
-}
-
-const resetFilters = () => {
-  selectedCategory.value = 'Tous'
-  searchQuery.value = ''
-}
-
-// Réinitialiser la pagination quand la catégorie ou la recherche change
-watch([selectedCategory, searchQuery], () => {
-  currentPage.value = 1
-})
-
-// Chargement initial
-onMounted(fetchArticles)
+  // Chargement initial
+  onMounted(fetchArticles)
 </script>
 
 <style scoped>

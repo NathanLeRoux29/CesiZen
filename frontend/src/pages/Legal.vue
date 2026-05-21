@@ -6,7 +6,7 @@
       <div class="legal-content">
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4">1. Informations sur l'éditeur</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           <strong>Nom du site :</strong> CesiZen<br>
           <strong>Éditeur :</strong> CesiZen SAS<br>
@@ -17,26 +17,26 @@
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">2. Directeur de publication</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           Le directeur de publication est M. Jean Dupont, Président de CesiZen SAS.
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">3. Hébergement</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           Le site CesiZen est hébergé par la société OVH SAS, située au 2 Rue Kellermann, 59100 Roubaix, France.
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">4. Propriété intellectuelle</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           L'ensemble des contenus présents sur le site CesiZen (textes, images, vidéos, logos) sont protégés par le droit d'auteur.
           Toute reproduction, même partielle, est interdite sans l'autorisation préalable de CesiZen SAS.
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">5. Protection des données personnelles</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           Conformément au Règlement Général sur la Protection des Données (RGPD), vous disposez d'un droit d'accès,
           de rectification et de suppression de vos données personnelles.
@@ -52,27 +52,27 @@
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">6. Cookies</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           Le site CesiZen utilise des cookies uniquement pour le fonctionnement technique et l'authentification.
           Ces cookies ne nécessitent pas de consentement préalable car strictement nécessaires au service.
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">7. Limitation de responsabilité</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6">
           Les informations présentes sur ce site sont fournis à titre indicatif. CesiZen ne saurait être tenue responsable
           des dommages résultant de l'utilisation du site.
         </p>
 
         <h2 class="text-h5 font-weight-bold text-primary mb-4 mt-8">8. Droit applicable</h2>
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-8">
           Les présentes mentions légales sont régies par le droit français. En cas de litige, les tribunaux français
           seront seuls compétents.
         </p>
 
-        <v-alert type="info" variant="tonal" class="mt-6">
+        <v-alert class="mt-6" type="info" variant="tonal">
           <strong>Dernière mise à jour :</strong> 23 avril 2026
         </v-alert>
 
@@ -82,7 +82,7 @@
 </template>
 
 <script setup>
-import Title from '@/components/Title.vue'
+  import Title from '@/components/Title.vue'
 </script>
 
 <style scoped>

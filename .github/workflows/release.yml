@@ -1,0 +1,58 @@
+name: Release automatique
+
+# Déclenché à chaque merge vers dev, preprod ou main
+# Crée automatiquement un tag et une release selon la branche :
+#   dev    → v0.2.0-alpha.1  (pre-release de développement)
+#   preprod → v0.2.0-beta.1  (pre-release de validation)
+#   main   → v0.2.0          (release stable)
+on:
+  push:
+    branches:
+      - main
+      - preprod
+      - dev
+
+# Permissions nécessaires pour créer des tags et releases GitHub
+permissions:
+  contents: write
+  issues: write
+
+jobs:
+  release:
+    name: Semantic Release
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0        # Récupère tout l'historique Git pour analyser tous les commits
+
+      - name: Installation de Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      # Installe semantic-release et ses plugins :
+      # commit-analyzer   : lit les commits et détermine le type de version (patch/minor/major)
+      # release-notes     : génère les notes de version depuis les commits
+      # changelog         : met à jour CHANGELOG.md
+      # git               : commite le CHANGELOG.md mis à jour
+      # github            : crée la GitHub Release avec les notes
+      - name: Installation de semantic-release
+        run: |
+          npm install -g \
+            semantic-release \
+            @semantic-release/commit-analyzer \
+            @semantic-release/release-notes-generator \
+            @semantic-release/github
+
+      # Lance semantic-release :
+      # 1. Analyse les commits depuis le dernier tag
+      # 2. Calcule la prochaine version SemVer
+      # 3. Génère/met à jour CHANGELOG.md
+      # 4. Crée le tag Git et la GitHub Release
+      - name: Lancement de semantic-release
+        run: semantic-release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

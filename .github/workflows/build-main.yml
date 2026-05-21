@@ -1,10 +1,16 @@
 name: Build Production
 
 # Déclenché sur chaque push sur la branche main
+# Valide que les images Docker de production se construisent correctement
+# Prévu pour intégrer un push vers Docker Hub ou GitHub Container Registry lors d'un vrai déploiement
 on:
   push:
     branches:
       - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
 
 jobs:
   build-images:
@@ -15,13 +21,11 @@ jobs:
       - name: Récupération du code
         uses: actions/checkout@v4
 
-      - name: Extraction de la version depuis le tag Git
-        id: version
-        run: echo "VERSION=${GITHUB_REF#refs/tags/}" >> $GITHUB_OUTPUT
-
       - name: Build image Docker backend
         run: docker build -t cesizen-backend:latest ./backend
 
+      # VITE_API_URL est gravée dans le bundle JS au moment du build
+      # En production réelle, remplacer http://localhost:3001 par l'URL publique de l'API
       - name: Build image Docker frontend
         run: |
           docker build \
@@ -36,6 +40,7 @@ jobs:
             -t cesizen-backoffice:latest \
             ./backoffice
 
+      # Affiche un récapitulatif des images construites avec leur taille
       - name: Résumé du build
         run: |
           echo "Images buildées avec succès"

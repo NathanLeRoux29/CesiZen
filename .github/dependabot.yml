@@ -1,0 +1,76 @@
+version: 2
+
+updates:
+  # Surveillance npm du backend
+  - package-ecosystem: "npm"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"       
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"
+
+  # Surveillance npm du frontend
+  - package-ecosystem: "npm"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"
+
+  # Surveillance npm du backoffice
+  - package-ecosystem: "npm"
+    directory: "/backoffice"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"
+
+  # Surveillance des images Docker (docker-compose.yml, Dockerfiles)
+  - package-ecosystem: "docker"
+    directory: "/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"
+
+  - package-ecosystem: "docker"
+    directory: "/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"
+
+  - package-ecosystem: "docker"
+    directory: "/backoffice"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"
+
+  # Surveillance des actions GitHub utilisées dans les workflows CI/CD
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+    labels:
+      - "chore"
+    commit-message:
+      prefix: "chore"

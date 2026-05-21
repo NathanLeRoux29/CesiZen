@@ -5,13 +5,13 @@
     <!-- Message si non connecté -->
     <v-alert
       v-if="!userStore.isLoggedIn"
+      class="mt-4"
       type="warning"
       variant="tonal"
-      class="mt-4"
     >
       Vous n'êtes pas connecté. Veuillez vous connecter pour accéder à votre compte.
-      <template v-slot:append>
-        <v-btn variant="text" color="primary" to="/Login">
+      <template #append>
+        <v-btn color="primary" to="/Login" variant="text">
           Se connecter
         </v-btn>
       </template>
@@ -33,8 +33,8 @@
           <div class="d-flex gap-2 mt-4 mt-md-0">
             <v-btn
               color="primary"
-              variant="outlined"
               rounded="lg"
+              variant="outlined"
               @click="openEditDialog"
             >
               <v-icon start>mdi-pencil</v-icon>
@@ -42,8 +42,8 @@
             </v-btn>
             <v-btn
               color="warning"
-              variant="outlined"
               rounded="lg"
+              variant="outlined"
               @click="openPasswordDialog"
             >
               <v-icon start>mdi-lock</v-icon>
@@ -51,8 +51,8 @@
             </v-btn>
             <v-btn
               color="error"
-              variant="outlined"
               rounded="lg"
+              variant="outlined"
               @click="handleLogout"
             >
               <v-icon start>mdi-logout</v-icon>
@@ -68,7 +68,7 @@
         <v-row class="mt-4">
           <v-col cols="12" sm="4">
             <v-card class="stat-card pa-6 text-center" elevation="0" rounded="lg">
-              <v-icon color="primary" size="48" class="mb-3">mdi-eye</v-icon>
+              <v-icon class="mb-3" color="primary" size="48">mdi-eye</v-icon>
               <h3 class="text-h4 font-weight-bold text-primary">
                 {{ userStore.user.stats.articlesViewed }}
               </h3>
@@ -78,13 +78,13 @@
             </v-card>
           </v-col>
           <v-col cols="12" sm="4">
-            <v-card 
-              class="stat-card pa-6 text-center cursor-pointer" 
-              elevation="0" 
+            <v-card
+              class="stat-card pa-6 text-center cursor-pointer"
+              elevation="0"
               rounded="lg"
               @click="openFavoritesDialog"
             >
-              <v-icon color="primary" size="48" class="mb-3">mdi-heart</v-icon>
+              <v-icon class="mb-3" color="primary" size="48">mdi-heart</v-icon>
               <h3 class="text-h4 font-weight-bold text-primary">
                 {{ userStore.user.stats.favoritesCount }}
               </h3>
@@ -95,7 +95,7 @@
           </v-col>
           <v-col cols="12" sm="4">
             <v-card class="stat-card pa-6 text-center" elevation="0" rounded="lg">
-              <v-icon color="primary" size="48" class="mb-3">mdi-meditation</v-icon>
+              <v-icon class="mb-3" color="primary" size="48">mdi-meditation</v-icon>
               <h3 class="text-h4 font-weight-bold text-primary">
                 {{ userStore.user.stats.breathingExercises }}
               </h3>
@@ -113,7 +113,7 @@
           <v-col cols="12" md="6">
             <v-card class="action-card pa-6" elevation="0" rounded="lg" to="/diagnostics">
               <div class="d-flex align-center">
-                <v-icon color="primary" size="40" class="mr-4">mdi-stethoscope</v-icon>
+                <v-icon class="mr-4" color="primary" size="40">mdi-stethoscope</v-icon>
                 <div>
                   <h3 class="text-h6 font-weight-bold text-primary">
                     Accéder aux Diagnostics
@@ -122,7 +122,7 @@
                     Évaluez votre bien-être
                   </p>
                 </div>
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-icon color="primary">mdi-chevron-right</v-icon>
               </div>
             </v-card>
@@ -130,7 +130,7 @@
           <v-col cols="12" md="6">
             <v-card class="action-card pa-6" elevation="0" rounded="lg" to="/Breathing">
               <div class="d-flex align-center">
-                <v-icon color="primary" size="40" class="mr-4">mdi-weather-windy</v-icon>
+                <v-icon class="mr-4" color="primary" size="40">mdi-weather-windy</v-icon>
                 <div>
                   <h3 class="text-h6 font-weight-bold text-primary">
                     Exercices de Respiration
@@ -139,7 +139,7 @@
                     Configurer vos séances
                   </p>
                 </div>
-                <v-spacer></v-spacer>
+                <v-spacer />
                 <v-icon color="primary">mdi-chevron-right</v-icon>
               </div>
             </v-card>
@@ -160,11 +160,11 @@
               </p>
             </div>
             <v-btn
-              color="error"
-              variant="outlined"
-              rounded="lg"
-              @click="deleteDialog = true"
               class="mt-4 mt-md-0"
+              color="error"
+              rounded="lg"
+              variant="outlined"
+              @click="deleteDialog = true"
             >
               <v-icon start>mdi-delete</v-icon>
               Supprimer le compte
@@ -179,61 +179,61 @@
       <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
         <div class="d-flex align-center justify-space-between mb-6">
           <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
-            <v-icon color="primary" class="mr-3">mdi-account-edit</v-icon>
+            <v-icon class="mr-3" color="primary">mdi-account-edit</v-icon>
             Modifier mon profil
           </h2>
-          <v-btn icon="mdi-close" variant="text" @click="editDialog = false"></v-btn>
+          <v-btn icon="mdi-close" variant="text" @click="editDialog = false" />
         </div>
 
-        <v-divider class="mb-6 opacity-10"></v-divider>
-        
+        <v-divider class="mb-6 opacity-10" />
+
         <v-form v-model="editFormValid">
           <v-text-field
             v-model="editForm.name"
+            class="mb-4"
+            color="primary"
             label="Nom"
             prepend-inner-icon="mdi-account"
-            variant="outlined"
-            color="primary"
             :rules="[v => !!v || 'Le nom est requis']"
-            class="mb-4"
-          ></v-text-field>
+            variant="outlined"
+          />
 
           <v-text-field
             v-model="editForm.email"
-            label="Email"
-            type="email"
-            prepend-inner-icon="mdi-email"
-            variant="outlined"
+            class="mb-4"
             color="primary"
+            label="Email"
+            prepend-inner-icon="mdi-email"
             :rules="[
               v => !!v || 'L\'email est requis',
               v => /.+@.+\..+/.test(v) || 'L\'email doit être valide'
             ]"
-            class="mb-4"
-          ></v-text-field>
+            type="email"
+            variant="outlined"
+          />
 
           <v-text-field
             v-model="editForm.avatar"
+            class="mb-6"
+            color="primary"
             label="URL de l'avatar"
             prepend-inner-icon="mdi-image"
             variant="outlined"
-            color="primary"
-            class="mb-6"
-          ></v-text-field>
+          />
 
           <div class="d-flex justify-end">
             <v-btn
+              class="mr-2"
               variant="text"
               @click="editDialog = false"
-              class="mr-2"
             >
               Annuler
             </v-btn>
             <v-btn
               color="primary"
-              variant="flat"
-              rounded="lg"
               :disabled="!editFormValid"
+              rounded="lg"
+              variant="flat"
               @click="saveProfile"
             >
               Enregistrer
@@ -248,92 +248,92 @@
       <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
         <div class="d-flex align-center justify-space-between mb-6">
           <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
-            <v-icon color="primary" class="mr-3">mdi-lock-reset</v-icon>
+            <v-icon class="mr-3" color="primary">mdi-lock-reset</v-icon>
             Modifier mon mot de passe
           </h2>
-          <v-btn icon="mdi-close" variant="text" @click="closePasswordDialog"></v-btn>
+          <v-btn icon="mdi-close" variant="text" @click="closePasswordDialog" />
         </div>
 
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
 
         <v-form v-model="passwordFormValid">
           <v-text-field
             v-model="passwordForm.currentPassword"
-            label="Mot de passe actuel"
-            :type="showCurrentPassword ? 'text' : 'password'"
-            prepend-inner-icon="mdi-lock"
             :append-inner-icon="showCurrentPassword ? 'mdi-eye-off' : 'mdi-eye'"
-            variant="outlined"
-            color="primary"
-            :rules="[v => !!v || 'Le mot de passe est requis']"
             class="mb-4"
+            color="primary"
+            label="Mot de passe actuel"
+            prepend-inner-icon="mdi-lock"
+            :rules="[v => !!v || 'Le mot de passe est requis']"
+            :type="showCurrentPassword ? 'text' : 'password'"
+            variant="outlined"
             @click:append-inner="showCurrentPassword = !showCurrentPassword"
-          ></v-text-field>
+          />
 
           <v-text-field
             v-model="passwordForm.newPassword"
-            label="Nouveau mot de passe"
-            :type="showNewPassword ? 'text' : 'password'"
-            prepend-inner-icon="mdi-lock-plus"
             :append-inner-icon="showNewPassword ? 'mdi-eye-off' : 'mdi-eye'"
-            variant="outlined"
+            class="mb-4"
             color="primary"
+            label="Nouveau mot de passe"
+            prepend-inner-icon="mdi-lock-plus"
             :rules="[
               v => !!v || 'Le nouveau mot de passe est requis',
               v => v.length >= 8 || 'Minimum 8 caractères'
             ]"
-            class="mb-4"
+            :type="showNewPassword ? 'text' : 'password'"
+            variant="outlined"
             @click:append-inner="showNewPassword = !showNewPassword"
-          ></v-text-field>
+          />
 
           <v-text-field
             v-model="passwordForm.confirmPassword"
-            label="Confirmer le nouveau mot de passe"
-            :type="showConfirmPassword ? 'text' : 'password'"
-            prepend-inner-icon="mdi-lock-check"
             :append-inner-icon="showConfirmPassword ? 'mdi-eye-off' : 'mdi-eye'"
-            variant="outlined"
+            class="mb-6"
             color="primary"
+            label="Confirmer le nouveau mot de passe"
+            prepend-inner-icon="mdi-lock-check"
             :rules="[
               v => !!v || 'La confirmation est requise',
               v => v === passwordForm.newPassword || 'Les mots de passe ne correspondent pas'
             ]"
-            class="mb-6"
+            :type="showConfirmPassword ? 'text' : 'password'"
+            variant="outlined"
             @click:append-inner="showConfirmPassword = !showConfirmPassword"
-          ></v-text-field>
+          />
 
           <v-alert
             v-if="passwordError"
+            class="mb-4"
             type="error"
             variant="tonal"
-            class="mb-4"
           >
             {{ passwordError }}
           </v-alert>
 
           <v-alert
             v-if="passwordSuccess"
+            class="mb-4"
             type="success"
             variant="tonal"
-            class="mb-4"
           >
             {{ passwordSuccess }}
           </v-alert>
 
           <div class="d-flex justify-end">
             <v-btn
+              class="mr-2"
               variant="text"
               @click="closePasswordDialog"
-              class="mr-2"
             >
               Annuler
             </v-btn>
             <v-btn
               color="primary"
-              variant="flat"
-              rounded="lg"
               :disabled="!passwordFormValid || savingPassword"
               :loading="savingPassword"
+              rounded="lg"
+              variant="flat"
               @click="savePassword"
             >
               Enregistrer
@@ -348,28 +348,28 @@
       <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
         <div class="d-flex align-center justify-space-between mb-4">
           <h2 class="text-h5 font-weight-bold text-error d-flex align-center">
-            <v-icon color="error" class="mr-3">mdi-alert-circle</v-icon>
+            <v-icon class="mr-3" color="error">mdi-alert-circle</v-icon>
             Confirmer la suppression
           </h2>
-          <v-btn icon="mdi-close" variant="text" @click="deleteDialog = false"></v-btn>
+          <v-btn icon="mdi-close" variant="text" @click="deleteDialog = false" />
         </div>
 
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
         <p class="text-body-1 mb-6 text-white">
           Êtes-vous sûr de vouloir supprimer votre compte ? Cette action est irréversible.
         </p>
         <div class="d-flex justify-end">
           <v-btn
+            class="mr-2"
             variant="text"
             @click="deleteDialog = false"
-            class="mr-2"
           >
             Annuler
           </v-btn>
           <v-btn
             color="error"
-            variant="outlined"
             rounded="lg"
+            variant="outlined"
             @click="confirmDelete"
           >
             Supprimer
@@ -383,39 +383,39 @@
       <v-card class="favorites-modal pa-6" elevation="0" rounded="xl">
         <div class="d-flex align-center justify-space-between mb-6">
           <h2 class="text-h5 font-weight-bold text-primary d-flex align-center">
-            <v-icon color="primary" class="mr-3">mdi-heart</v-icon>
+            <v-icon class="mr-3" color="primary">mdi-heart</v-icon>
             Mes Articles Favoris
           </h2>
-          <v-btn icon="mdi-close" variant="text" @click="favoritesDialog = false"></v-btn>
+          <v-btn icon="mdi-close" variant="text" @click="favoritesDialog = false" />
         </div>
 
-        <v-divider class="mb-6 opacity-10"></v-divider>
+        <v-divider class="mb-6 opacity-10" />
 
         <v-card-text class="pa-0">
           <div v-if="loadingFavorites" class="text-center py-12">
-            <v-progress-circular indeterminate color="primary"></v-progress-circular>
+            <v-progress-circular color="primary" indeterminate />
           </div>
           <div v-else-if="favoriteArticles.length === 0" class="text-center py-12 opacity-70">
-            <v-icon size="64" class="mb-4">mdi-heart-outline</v-icon>
+            <v-icon class="mb-4" size="64">mdi-heart-outline</v-icon>
             <p>Vous n'avez pas encore d'articles favoris.</p>
           </div>
           <v-row v-else class="ma-0">
             <v-col v-for="art in favoriteArticles" :key="art.id" cols="12">
-              <v-card 
-                class="favorite-article-item pa-4" 
-                elevation="0" 
+              <v-card
+                class="favorite-article-item pa-4"
+                elevation="0"
                 rounded="lg"
                 @click="goToArticle(art.id)"
               >
                 <div class="d-flex align-center">
-                  <v-icon color="primary" class="mr-4">mdi-file-document-outline</v-icon>
+                  <v-icon class="mr-4" color="primary">mdi-file-document-outline</v-icon>
                   <div class="flex-grow-1">
                     <div class="d-flex align-center mb-1">
                       <span class="text-caption text-primary font-weight-bold text-uppercase mr-3">{{ art.category }}</span>
                     </div>
                     <h4 class="text-subtitle-1 font-weight-bold text-white mb-0">{{ art.title }}</h4>
                   </div>
-                  <v-btn icon="mdi-arrow-right" variant="text" color="primary" size="small"></v-btn>
+                  <v-btn color="primary" icon="mdi-arrow-right" size="small" variant="text" />
                 </div>
               </v-card>
             </v-col>
@@ -427,171 +427,171 @@
 </template>
 
 <script setup>
-import { ref, reactive, onMounted } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
-import Title from '@/components/Title.vue'
-import ArticleCard from '@/components/ArticleCard.vue'
+  import { onMounted, reactive, ref } from 'vue'
+  import { useRouter } from 'vue-router'
+  import ArticleCard from '@/components/ArticleCard.vue'
+  import Title from '@/components/Title.vue'
+  import { useUserStore } from '@/stores/user'
 
-const router = useRouter()
-const userStore = useUserStore()
+  const router = useRouter()
+  const userStore = useUserStore()
 
-// Dialogs
-const editDialog = ref(false)
-const deleteDialog = ref(false)
-const favoritesDialog = ref(false)
-const passwordDialog = ref(false)
+  // Dialogs
+  const editDialog = ref(false)
+  const deleteDialog = ref(false)
+  const favoritesDialog = ref(false)
+  const passwordDialog = ref(false)
 
-// Password form
-const passwordFormValid = ref(false)
-const passwordForm = reactive({
-  currentPassword: '',
-  newPassword: '',
-  confirmPassword: ''
-})
-const showCurrentPassword = ref(false)
-const showNewPassword = ref(false)
-const showConfirmPassword = ref(false)
-const passwordError = ref('')
-const passwordSuccess = ref('')
-const savingPassword = ref(false)
+  // Password form
+  const passwordFormValid = ref(false)
+  const passwordForm = reactive({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: '',
+  })
+  const showCurrentPassword = ref(false)
+  const showNewPassword = ref(false)
+  const showConfirmPassword = ref(false)
+  const passwordError = ref('')
+  const passwordSuccess = ref('')
+  const savingPassword = ref(false)
 
-// État Favoris
-const favoriteArticles = ref([])
-const loadingFavorites = ref(false)
+  // État Favoris
+  const favoriteArticles = ref([])
+  const loadingFavorites = ref(false)
 
-// Formulaire de modification
-const editFormValid = ref(false)
-const editForm = reactive({
-  name: '',
-  email: '',
-  avatar: ''
-})
+  // Formulaire de modification
+  const editFormValid = ref(false)
+  const editForm = reactive({
+    name: '',
+    email: '',
+    avatar: '',
+  })
 
-// Ouvrir le dialog d'édition avec les données pré-remplies
-const openEditDialog = () => {
-  editForm.name = userStore.user.name
-  editForm.email = userStore.user.email
-  editDialog.value = true
-}
+  // Ouvrir le dialog d'édition avec les données pré-remplies
+  function openEditDialog () {
+    editForm.name = userStore.user.name
+    editForm.email = userStore.user.email
+    editDialog.value = true
+  }
 
-// Password dialog
-const openPasswordDialog = () => {
-  passwordForm.currentPassword = ''
-  passwordForm.newPassword = ''
-  passwordForm.confirmPassword = ''
-  passwordError.value = ''
-  passwordSuccess.value = ''
-  passwordDialog.value = true
-}
+  // Password dialog
+  function openPasswordDialog () {
+    passwordForm.currentPassword = ''
+    passwordForm.newPassword = ''
+    passwordForm.confirmPassword = ''
+    passwordError.value = ''
+    passwordSuccess.value = ''
+    passwordDialog.value = true
+  }
 
-const closePasswordDialog = () => {
-  passwordDialog.value = false
-  passwordError.value = ''
-  passwordSuccess.value = ''
-}
+  function closePasswordDialog () {
+    passwordDialog.value = false
+    passwordError.value = ''
+    passwordSuccess.value = ''
+  }
 
-const savePassword = async () => {
-  if (!passwordFormValid.value) return
+  async function savePassword () {
+    if (!passwordFormValid.value) return
 
-  savingPassword.value = true
-  passwordError.value = ''
-  passwordSuccess.value = ''
+    savingPassword.value = true
+    passwordError.value = ''
+    passwordSuccess.value = ''
 
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/password`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${userStore.token}`
-      },
-      body: JSON.stringify({
-        currentPassword: passwordForm.currentPassword,
-        newPassword: passwordForm.newPassword
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/users/password`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${userStore.token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordForm.currentPassword,
+          newPassword: passwordForm.newPassword,
+        }),
       })
-    })
 
-    const data = await response.json()
+      const data = await response.json()
 
-    if (!response.ok) {
-      passwordError.value = data.error || 'Erreur lors du changement de mot de passe'
-      return
-    }
-
-    passwordSuccess.value = 'Mot de passe mis à jour avec succès'
-    setTimeout(() => {
-      closePasswordDialog()
-    }, 1500)
-  } catch (error) {
-    passwordError.value = 'Erreur de connexion au serveur'
-  } finally {
-    savingPassword.value = false
-  }
-}
-
-// Gestion de la déconnexion
-const handleLogout = () => {
-  userStore.logout()
-  router.push('/')
-}
-
-// Sauvegarder le profil
-const saveProfile = async () => {
-  if (!editFormValid.value) return
-
-  try {
-    await userStore.updateUser({
-      name: editForm.name,
-      email: editForm.email
-    })
-    editDialog.value = false
-  } catch (error) {
-    console.error('Erreur lors de la sauvegarde:', error)
-  }
-}
-
-// Confirmer la suppression du compte
-const confirmDelete = () => {
-  userStore.deleteAccount()
-  deleteDialog.value = false
-  router.push('/')
-}
-
-// Favoris
-const openFavoritesDialog = () => {
-  favoritesDialog.value = true
-  fetchFavorites()
-}
-
-const goToArticle = (id) => {
-  favoritesDialog.value = false
-  router.push(`/article/${id}`)
-}
-
-const fetchFavorites = async () => {
-  if (!userStore.isLoggedIn) return
-  loadingFavorites.value = true
-  try {
-    const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/user/${userStore.user.id}`, {
-      headers: {
-        Authorization: `Bearer ${userStore.token}`
+      if (!response.ok) {
+        passwordError.value = data.error || 'Erreur lors du changement de mot de passe'
+        return
       }
-    })
-    const data = await response.json()
-    favoriteArticles.value = data
-    userStore.user.stats.favoritesCount = data.length
-  } catch (e) {
-    console.error('Erreur fetch favorites:', e)
-  } finally {
-    loadingFavorites.value = false
-  }
-}
 
-onMounted(() => {
-  if (userStore.isLoggedIn) {
+      passwordSuccess.value = 'Mot de passe mis à jour avec succès'
+      setTimeout(() => {
+        closePasswordDialog()
+      }, 1500)
+    } catch {
+      passwordError.value = 'Erreur de connexion au serveur'
+    } finally {
+      savingPassword.value = false
+    }
+  }
+
+  // Gestion de la déconnexion
+  function handleLogout () {
+    userStore.logout()
+    router.push('/')
+  }
+
+  // Sauvegarder le profil
+  async function saveProfile () {
+    if (!editFormValid.value) return
+
+    try {
+      await userStore.updateUser({
+        name: editForm.name,
+        email: editForm.email,
+      })
+      editDialog.value = false
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error)
+    }
+  }
+
+  // Confirmer la suppression du compte
+  function confirmDelete () {
+    userStore.deleteAccount()
+    deleteDialog.value = false
+    router.push('/')
+  }
+
+  // Favoris
+  function openFavoritesDialog () {
+    favoritesDialog.value = true
     fetchFavorites()
   }
-})
+
+  function goToArticle (id) {
+    favoritesDialog.value = false
+    router.push(`/article/${id}`)
+  }
+
+  async function fetchFavorites () {
+    if (!userStore.isLoggedIn) return
+    loadingFavorites.value = true
+    try {
+      const response = await fetch(`${import.meta.env.VITE_API_URL}/api/favorites/articles/user/${userStore.user.id}`, {
+        headers: {
+          Authorization: `Bearer ${userStore.token}`,
+        },
+      })
+      const data = await response.json()
+      favoriteArticles.value = data
+      userStore.user.stats.favoritesCount = data.length
+    } catch (error) {
+      console.error('Erreur fetch favorites:', error)
+    } finally {
+      loadingFavorites.value = false
+    }
+  }
+
+  onMounted(() => {
+    if (userStore.isLoggedIn) {
+      fetchFavorites()
+    }
+  })
 </script>
 
 <style scoped>

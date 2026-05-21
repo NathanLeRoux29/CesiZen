@@ -29,6 +29,12 @@
         to="/admin/articles"
         color="primary"
       ></v-list-item>
+      <v-list-item
+        prepend-icon="mdi-alert-circle-outline"
+        title="Signalements"
+        to="/admin/reports"
+        color="primary"
+      ></v-list-item>
     </v-list>
   </v-navigation-drawer>
 

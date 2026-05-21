@@ -4,9 +4,9 @@
  * Automatic routes for `./src/pages/*.vue`
  */
 
+import { setupLayouts } from 'virtual:generated-layouts'
 // Composables
 import { createRouter, createWebHistory } from 'vue-router'
-import { setupLayouts } from 'virtual:generated-layouts'
 import { routes } from 'vue-router/auto-routes'
 import ArticleDetail from '@/pages/ArticleDetail.vue'
 
@@ -15,14 +15,14 @@ const customRoutes = [
   {
     path: '/',
     name: 'home',
-    component: () => import('@/pages/Home.vue')
+    component: () => import('@/pages/Home.vue'),
   },
   {
     path: '/article/:id',
     name: 'article-detail',
     component: ArticleDetail,
-    props: true
-  }
+    props: true,
+  },
 ]
 
 const router = createRouter({

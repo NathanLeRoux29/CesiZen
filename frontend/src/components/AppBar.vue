@@ -1,13 +1,13 @@
 <template>
-  <v-app-bar flat class="app-bar">
+  <v-app-bar class="app-bar" flat>
     <v-container class="d-flex align-center justify-space-between" style="max-width: 1400px;">
       <!-- Logo -->
       <div class="cursor-pointer" @click="$router.push('/')">
-        <v-img 
-          src="@/assets/logo.png" 
-          width="120"  
+        <v-img
           contain
-        ></v-img>
+          src="@/assets/logo.png"
+          width="120"
+        />
       </div>
 
       <!-- Menu desktop -->
@@ -15,11 +15,11 @@
         <v-btn
           v-for="item in menuItems"
           :key="item.title"
-          :to="item.to"
-          variant="text"
-          size="small"
           class="mx-1"
           exact
+          size="small"
+          :to="item.to"
+          variant="text"
         >
           {{ item.title }}
         </v-btn>
@@ -30,42 +30,42 @@
         <!-- Desktop Auth Button -->
         <v-btn
           v-if="$vuetify.display.mdAndUp"
-          variant="text"
-          @click="handleAuthClick"
           class="text-primary font-weight-bold"
           size="large"
+          variant="text"
+          @click="handleAuthClick"
         >
-          <v-icon color="primary" size="28" class="mr-2">mdi-account-circle</v-icon>
+          <v-icon class="mr-2" color="primary" size="28">mdi-account-circle</v-icon>
           {{ authText }}
         </v-btn>
 
         <!-- Mobile Auth Icon (Explicitly visible next to menu) -->
         <v-btn
           v-if="!$vuetify.display.mdAndUp"
+          color="primary"
           icon="mdi-account-circle"
           variant="text"
-          color="primary"
           @click="handleAuthClick"
-        ></v-btn>
+        />
 
         <!-- Menu mobile -->
         <v-menu v-if="!$vuetify.display.mdAndUp">
-          <template v-slot:activator="{ props }">
+          <template #activator="{ props }">
             <v-btn
+              color="primary"
               icon="mdi-menu"
               variant="text"
-              color="primary"
               v-bind="props"
-            ></v-btn>
+            />
           </template>
           <v-list>
             <v-list-item @click="handleAuthClick">
               <v-list-item-title>
-                <v-icon size="20" class="mr-2">mdi-account-circle</v-icon>
+                <v-icon class="mr-2" size="20">mdi-account-circle</v-icon>
                 {{ authText }}
               </v-list-item-title>
             </v-list-item>
-            <v-divider></v-divider>
+            <v-divider />
             <v-list-item
               v-for="item in menuItems"
               :key="item.title"
@@ -78,42 +78,41 @@
       </div>
     </v-container>
 
-
   </v-app-bar>
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRouter } from 'vue-router'
-import { useUserStore } from '@/stores/user'
+  import { computed } from 'vue'
+  import { useRouter } from 'vue-router'
+  import { useUserStore } from '@/stores/user'
 
-const router = useRouter()
-const userStore = useUserStore()
+  const router = useRouter()
+  const userStore = useUserStore()
 
-// Gestion de l'authentification
-const authText = computed(() => {
-  return userStore.isLoggedIn ? userStore.user.name : 'Connexion'
-})
+  // Gestion de l'authentification
+  const authText = computed(() => {
+    return userStore.isLoggedIn ? userStore.user.name : 'Connexion'
+  })
 
-const handleAuthClick = () => {
-  if (userStore.isLoggedIn) {
-    router.push('/Account')
-  } else {
-    router.push('/Login')
+  function handleAuthClick () {
+    if (userStore.isLoggedIn) {
+      router.push('/Account')
+    } else {
+      router.push('/Login')
+    }
   }
-}
 
-const menuItems = [
-  { title: 'Accueil', to: '/' },
-  { title: 'Catalogue', to: '/Catalogue' },
-  { title: 'Diagnostics', to: '/diagnostics' },
-  { title: 'Activités', to: '/activites' },
-  { title: 'Respiration', to: '/Breathing' },
-  // { title: 'Ressources', to: '/ressources' },
-  { title: 'Émotions', to: '/emotions' },
-  { title: 'FAQ', to: '/faq' },
-  { title: 'Mentions légales', to: '/Legal' },
-]
+  const menuItems = [
+    { title: 'Accueil', to: '/' },
+    { title: 'Catalogue', to: '/Catalogue' },
+    { title: 'Diagnostics', to: '/diagnostics' },
+    { title: 'Activités', to: '/activites' },
+    { title: 'Respiration', to: '/Breathing' },
+    // { title: 'Ressources', to: '/ressources' },
+    { title: 'Émotions', to: '/emotions' },
+    { title: 'FAQ', to: '/faq' },
+    { title: 'Mentions légales', to: '/Legal' },
+  ]
 </script>
 
 <style scoped>

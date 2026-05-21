@@ -178,4 +178,4 @@ Ce projet est analysé en continu par :
 Pour signaler une vulnérabilité, ouvrir une issue avec le label `security`.
 
 
-## TEST CI Blip
+## TEST CI

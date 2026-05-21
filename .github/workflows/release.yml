@@ -29,7 +29,7 @@ jobs:
           fetch-depth: 0        # Récupère tout l'historique Git pour analyser tous les commits
 
       - name: Installation de Node.js 20
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '20'
 

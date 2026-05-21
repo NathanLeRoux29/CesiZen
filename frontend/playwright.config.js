@@ -1,4 +1,4 @@
-import { defineConfig, devices } from '@playwright/test';
+import { defineConfig, devices } from '@playwright/test'
 
 /**
  * @see https://playwright.dev/docs/test-configuration
@@ -8,7 +8,7 @@ export default defineConfig({
   /* Maximum time one test can run for. */
   timeout: 30 * 1000,
   expect: {
-    timeout: 5000
+    timeout: 5000,
   },
   /* Run tests in files in parallel */
   fullyParallel: false,
@@ -50,4 +50,4 @@ export default defineConfig({
     reuseExistingServer: !process.env.CI,
     timeout: 60 * 1000,
   },
-});
+})

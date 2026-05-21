@@ -5,9 +5,9 @@
       <Title :message="'Article du jour'" />
       <v-row class="mt-4">
         <v-col cols="12">
-          <ArticleCard 
+          <ArticleCard
             v-if="articleOfTheDay"
-            :article="articleOfTheDay" 
+            :article="articleOfTheDay"
             :large="true"
           />
           <v-skeleton-loader v-else type="card" />
@@ -21,8 +21,8 @@
         <Title :message="'Pourrait vous intéresser'" />
       </div>
       <v-row>
-        <v-col 
-          v-for="article in suggestedArticles" 
+        <v-col
+          v-for="article in suggestedArticles"
           :key="article.id"
           cols="12"
           md="4"
@@ -35,11 +35,11 @@
     <!-- Bouton vers le Catalogue -->
     <section class="text-center py-8">
       <v-btn
-        color="primary"
-        size="x-large"
-        rounded="xl"
-        to="/Catalogue"
         class="catalogue-btn"
+        color="primary"
+        rounded="xl"
+        size="x-large"
+        to="/Catalogue"
       >
         <v-icon start>mdi-book-open-page-variant</v-icon>
         Découvrir le catalogue
@@ -49,42 +49,42 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
-import axios from 'axios'
-import Title from '@/components/Title.vue'
-import ArticleCard from '@/components/ArticleCard.vue'
+  import axios from 'axios'
+  import { onMounted, ref } from 'vue'
+  import ArticleCard from '@/components/ArticleCard.vue'
+  import Title from '@/components/Title.vue'
 
-// État
-const articleOfTheDay = ref(null)
-const suggestedArticles = ref([])
-const isLoading = ref(true)
+  // État
+  const articleOfTheDay = ref(null)
+  const suggestedArticles = ref([])
+  const isLoading = ref(true)
 
-// Chargement des articles depuis l'API
-const fetchHomeContent = async () => {
-  isLoading.value = true
-  try {
-    const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
-    const allArticles = response.data.map(a => ({
-      ...a,
-      image: a.media_url,
-      description: a.summary
-    }))
-    
-    if (allArticles.length > 0) {
-      // Pour l'exercice: on prend le premier comme article du jour
-      articleOfTheDay.value = allArticles[0]
-      // Et les 3 suivants comme suggestions
-      suggestedArticles.value = allArticles.slice(1, 4)
+  // Chargement des articles depuis l'API
+  async function fetchHomeContent () {
+    isLoading.value = true
+    try {
+      const response = await axios.get(`${import.meta.env.VITE_API_URL}/api/articles`)
+      const allArticles = response.data.map(a => ({
+        ...a,
+        image: a.media_url,
+        description: a.summary,
+      }))
+
+      if (allArticles.length > 0) {
+        // Pour l'exercice: on prend le premier comme article du jour
+        articleOfTheDay.value = allArticles[0]
+        // Et les 3 suivants comme suggestions
+        suggestedArticles.value = allArticles.slice(1, 4)
+      }
+    } catch (error) {
+      console.error('Erreur lors du chargement de l\'accueil:', error)
+    } finally {
+      isLoading.value = false
     }
-  } catch (error) {
-    console.error('Erreur lors du chargement de l\'accueil:', error)
-  } finally {
-    isLoading.value = false
   }
-}
 
-// Mise à jour au montage
-onMounted(fetchHomeContent)
+  // Mise à jour au montage
+  onMounted(fetchHomeContent)
 </script>
 
 <style scoped>

@@ -4,11 +4,11 @@
  * Automatically included in `./src/main.js`
  */
 
+import router from '@/router'
+import pinia from '@/stores'
+import api from './axios'
 // Plugins
 import vuetify from './vuetify'
-import pinia from '@/stores'
-import router from '@/router'
-import api from './axios'
 
 export function registerPlugins (app) {
   app

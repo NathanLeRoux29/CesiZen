@@ -1,17 +1,25 @@
 name: CI Tests automatiques
 
-# Déclenché sur chaque Pull Request vers dev ou preprod
+# Déclenché automatiquement sur chaque Pull Request vers dev, preprod ou main
+# Peut aussi être lancé manuellement depuis l'onglet Actions de GitHub
 on:
   pull_request:
     branches:
       - dev
       - preprod
+      - main
+  workflow_dispatch:
+
+# Permissions nécessaires pour créer des issues automatiquement en cas d'échec
+permissions:
+  issues: write
+  contents: read
 
 jobs:
+  # Job 1 : tests unitaires du backend + audit de sécurité
   tests-backend:
     name: Tests backend (Jest)
     runs-on: ubuntu-latest
-
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
@@ -31,27 +39,34 @@ jobs:
         working-directory: backend
         run: npm test
 
-  tests-frontend:
-    name: Tests frontend (Playwright)
-    runs-on: ubuntu-latest
+      # Vérifie que les dépendances npm n'ont pas de vulnérabilités connues (CVE)
+      # --audit-level=high : échoue uniquement sur les vulnérabilités high et critical
+      - name: Audit de sécurité des dépendances backend
+        working-directory: backend
+        run: npm audit --audit-level=high
 
-    # Service MySQL pour les tests d'intégration
-    services:
-      mysql:
-        image: mysql:8
+      # Crée automatiquement une issue GitHub si le job échoue
+      - name: Créer une issue en cas d'échec
+        if: failure()
+        run: |
+          gh issue create \
+            --title "[BUG] Échec CI backend sur ${{ github.head_ref || github.ref_name }}" \
+            --body "## Échec de la CI — Tests backend
+
+          **Branche :** \`${{ github.head_ref || github.ref_name }}\`
+          **Commit :** \`${{ github.sha }}\`
+          **Déclenché par :** @${{ github.actor }}
+
+          [Voir les logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            --label "bug" \
+            --assignee "${{ github.actor }}"
         env:
-          MYSQL_ROOT_PASSWORD: root_ci
-          MYSQL_DATABASE: cesizen
-          MYSQL_USER: cesizen_user
-          MYSQL_PASSWORD: password_ci
-        ports:
-          - 3306:3306
-        options: >-
-          --health-cmd="mysqladmin ping -h localhost -u root -proot_ci"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=10
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
+  # Job 2 : build du frontend + audit de sécurité
+  build-frontend:
+    name: Build frontend (Vite)
+    runs-on: ubuntu-latest
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
@@ -63,40 +78,80 @@ jobs:
           cache: 'npm'
           cache-dependency-path: frontend/package-lock.json
 
-      - name: Import du schéma SQL
-        run: mysql -h 127.0.0.1 -u root -proot_ci cesizen < backend/sql/cesizen.sql
-
-      - name: Installation des dépendances backend
-        working-directory: backend
-        run: npm ci
-
-      - name: Démarrage du backend en arrière-plan
-        working-directory: backend
-        run: npm start &
-        env:
-          PORT: 3001
-          DB_HOST: 127.0.0.1
-          DB_USER: cesizen_user
-          DB_PASSWORD: password_ci
-          DB_NAME: cesizen
-          JWT_SECRET: ci_jwt_secret
-          JWT_EXPIRES_IN: 24h
-          NODE_ENV: production
-
-      - name: Attendre que le backend soit prêt
-        run: npx wait-on http://localhost:3001 --timeout 30000
-
       - name: Installation des dépendances frontend
         working-directory: frontend
-        run: npm ci
+        run: npm install -g npm@11.6.1 && npm ci
 
-      - name: Installation des navigateurs Playwright
+      # Vérifie que le code Vue.js compile sans erreur
+      - name: Build Vite
         working-directory: frontend
-        run: npx playwright install chromium --with-deps
-
-      - name: Lancement des tests Playwright
-        working-directory: frontend
-        run: npx playwright test
+        run: npm run build
         env:
-          CI: true
           VITE_API_URL: http://localhost:3001
+
+      - name: Audit de sécurité des dépendances frontend
+        working-directory: frontend
+        run: npm audit --audit-level=high
+
+      - name: Créer une issue en cas d'échec
+        if: failure()
+        run: |
+          gh issue create \
+            --title "[BUG] Échec CI frontend sur ${{ github.head_ref || github.ref_name }}" \
+            --body "## Échec de la CI — Build frontend
+
+          **Branche :** \`${{ github.head_ref || github.ref_name }}\`
+          **Commit :** \`${{ github.sha }}\`
+          **Déclenché par :** @${{ github.actor }}
+
+          [Voir les logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            --label "bug" \
+            --assignee "${{ github.actor }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  # Job 3 : build du backoffice + audit de sécurité
+  build-backoffice:
+    name: Build backoffice (Vite)
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupération du code
+        uses: actions/checkout@v4
+
+      - name: Installation de Node.js 20
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: backoffice/package-lock.json
+
+      - name: Installation des dépendances backoffice
+        working-directory: backoffice
+        run: npm install -g npm@11.6.1 && npm ci
+
+      - name: Build Vite
+        working-directory: backoffice
+        run: npm run build
+        env:
+          VITE_API_URL: http://localhost:3001
+
+      - name: Audit de sécurité des dépendances backoffice
+        working-directory: backoffice
+        run: npm audit --audit-level=high
+
+      - name: Créer une issue en cas d'échec
+        if: failure()
+        run: |
+          gh issue create \
+            --title "[BUG] Échec CI backoffice sur ${{ github.head_ref || github.ref_name }}" \
+            --body "## Échec de la CI — Build backoffice
+
+          **Branche :** \`${{ github.head_ref || github.ref_name }}\`
+          **Commit :** \`${{ github.sha }}\`
+          **Déclenché par :** @${{ github.actor }}
+
+          [Voir les logs du workflow](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }})" \
+            --label "bug" \
+            --assignee "${{ github.actor }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

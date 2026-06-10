@@ -1,8 +1,9 @@
 name: Build Production
 
 # Déclenché sur chaque push/PR sur la branche main
-# - Sur PR : vérifie uniquement que les 3 images Docker de production se build correctement
-# - Sur push : build PUIS pousse les 3 images sur GHCR, taguées :latest ET :<sha-court> (traçabilité)
+# Build PUIS pousse les 3 images sur GHCR, taguées :latest ET :<sha-court> (traçabilité).
+# Le push s'exécute aussi sur les PR internes (workflow PR-only : pas de push direct sur les branches).
+# Les PR venant d'un fork sont exclues du push (GITHUB_TOKEN en lecture seule).
 on:
   push:
     branches:
@@ -37,9 +38,9 @@ jobs:
       - name: Définir le tag de commit
         run: echo "SHA_TAG=$(echo '${{ github.sha }}' | cut -c1-7)" >> "$GITHUB_ENV"
 
-      # Connexion à GHCR — uniquement sur push (le GITHUB_TOKEN est en lecture seule sur les PR de forks)
+      # Connexion à GHCR — sur push, dispatch et PR internes (pas sur les PR de forks : token en lecture seule)
       - name: Connexion à GHCR
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -55,7 +56,7 @@ jobs:
             ./backend
 
       - name: Push image backend
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: docker push --all-tags $IMAGE_PREFIX/cesizen-backend
 
       # Frontend
@@ -70,7 +71,7 @@ jobs:
             ./frontend
 
       - name: Push image frontend
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: docker push --all-tags $IMAGE_PREFIX/cesizen-frontend
 
       # Backoffice
@@ -83,7 +84,7 @@ jobs:
             ./backoffice
 
       - name: Push image backoffice
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: docker push --all-tags $IMAGE_PREFIX/cesizen-backoffice
 
       # Affiche un récapitulatif des images construites
@@ -91,6 +92,4 @@ jobs:
         run: |
           echo "Images buildées avec succès (tags : latest + $SHA_TAG)"
           docker images | grep cesizen
-          if [ "${{ github.event_name }}" = "push" ]; then
-            echo "Poussées sur GHCR sous $IMAGE_PREFIX/cesizen-*"
-          fi
+          echo "Poussées sur GHCR sous $IMAGE_PREFIX/cesizen-* (sauf PR de fork)"

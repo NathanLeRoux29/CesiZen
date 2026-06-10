@@ -1,8 +1,9 @@
 name: Build Pré-production
 
 # Déclenché sur chaque push/PR sur la branche preprod
-# - Sur PR : vérifie uniquement que les 3 images Docker se build correctement
-# - Sur push : build PUIS pousse les 3 images sur GHCR (GitHub Container Registry)
+# Build PUIS pousse les 3 images sur GHCR (GitHub Container Registry).
+# Le push s'exécute aussi sur les PR internes (workflow PR-only : pas de push direct sur les branches).
+# Les PR venant d'un fork sont exclues du push (GITHUB_TOKEN en lecture seule).
 on:
   push:
     branches:
@@ -33,9 +34,9 @@ jobs:
       - name: Définir le préfixe des images
         run: echo "IMAGE_PREFIX=${REGISTRY}/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
-      # Connexion à GHCR — uniquement sur push (le GITHUB_TOKEN est en lecture seule sur les PR de forks)
+      # Connexion à GHCR — sur push, dispatch et PR internes (pas sur les PR de forks : token en lecture seule)
       - name: Connexion à GHCR
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         uses: docker/login-action@v3
         with:
           registry: ${{ env.REGISTRY }}
@@ -47,7 +48,7 @@ jobs:
         run: docker build -t $IMAGE_PREFIX/cesizen-backend:preprod ./backend
 
       - name: Push image backend
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: docker push $IMAGE_PREFIX/cesizen-backend:preprod
 
       # Frontend
@@ -59,7 +60,7 @@ jobs:
             ./frontend
 
       - name: Push image frontend
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: docker push $IMAGE_PREFIX/cesizen-frontend:preprod
 
       # Backoffice
@@ -71,11 +72,11 @@ jobs:
             ./backoffice
 
       - name: Push image backoffice
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: docker push $IMAGE_PREFIX/cesizen-backoffice:preprod
 
       - name: Résumé
-        if: github.event_name == 'push'
+        if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
         run: |
           echo "Images de pré-production poussées sur GHCR :"
           echo "  $IMAGE_PREFIX/cesizen-backend:preprod"

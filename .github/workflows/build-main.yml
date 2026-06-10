@@ -1,8 +1,8 @@
 name: Build Production
 
-# Déclenché sur chaque push sur la branche main
-# Valide que les images Docker de production se construisent correctement
-# Prévu pour intégrer un push vers Docker Hub ou GitHub Container Registry lors d'un vrai déploiement
+# Déclenché sur chaque push/PR sur la branche main
+# - Sur PR : vérifie uniquement que les 3 images Docker de production se build correctement
+# - Sur push : build PUIS pousse les 3 images sur GHCR, taguées :latest ET :<sha-court> (traçabilité)
 on:
   push:
     branches:
@@ -12,36 +12,85 @@ on:
       - main
   workflow_dispatch:
 
+# Permissions nécessaires pour publier les images sur GHCR
+permissions:
+  contents: read
+  packages: write
+
+env:
+  REGISTRY: ghcr.io
+
 jobs:
   build-images:
-    name: Build des images Docker de production
+    name: Build et push des images Docker (production)
     runs-on: ubuntu-latest
 
     steps:
       - name: Récupération du code
         uses: actions/checkout@v4
 
-      - name: Build image Docker backend
-        run: docker build -t cesizen-backend:latest ./backend
+      # GHCR exige des noms d'images en minuscules — on calcule le préfixe ghcr.io/<owner>
+      - name: Définir le préfixe des images
+        run: echo "IMAGE_PREFIX=${REGISTRY}/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_ENV"
 
+      # SHA court du commit — sert de tag de traçabilité exacte (ex: a3f9c12)
+      - name: Définir le tag de commit
+        run: echo "SHA_TAG=$(echo '${{ github.sha }}' | cut -c1-7)" >> "$GITHUB_ENV"
+
+      # Connexion à GHCR — uniquement sur push (le GITHUB_TOKEN est en lecture seule sur les PR de forks)
+      - name: Connexion à GHCR
+        if: github.event_name == 'push'
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      # Backend — tagué :latest (version courante) + :<sha> (traçabilité)
+      - name: Build image Docker backend
+        run: |
+          docker build \
+            -t $IMAGE_PREFIX/cesizen-backend:latest \
+            -t $IMAGE_PREFIX/cesizen-backend:$SHA_TAG \
+            ./backend
+
+      - name: Push image backend
+        if: github.event_name == 'push'
+        run: docker push --all-tags $IMAGE_PREFIX/cesizen-backend
+
+      # Frontend
       # VITE_API_URL est gravée dans le bundle JS au moment du build
       # En production réelle, remplacer http://localhost:3001 par l'URL publique de l'API
       - name: Build image Docker frontend
         run: |
           docker build \
             --build-arg VITE_API_URL=http://localhost:3001 \
-            -t cesizen-frontend:latest \
+            -t $IMAGE_PREFIX/cesizen-frontend:latest \
+            -t $IMAGE_PREFIX/cesizen-frontend:$SHA_TAG \
             ./frontend
 
+      - name: Push image frontend
+        if: github.event_name == 'push'
+        run: docker push --all-tags $IMAGE_PREFIX/cesizen-frontend
+
+      # Backoffice
       - name: Build image Docker backoffice
         run: |
           docker build \
             --build-arg VITE_API_URL=http://localhost:3001 \
-            -t cesizen-backoffice:latest \
+            -t $IMAGE_PREFIX/cesizen-backoffice:latest \
+            -t $IMAGE_PREFIX/cesizen-backoffice:$SHA_TAG \
             ./backoffice
 
-      # Affiche un récapitulatif des images construites avec leur taille
+      - name: Push image backoffice
+        if: github.event_name == 'push'
+        run: docker push --all-tags $IMAGE_PREFIX/cesizen-backoffice
+
+      # Affiche un récapitulatif des images construites
       - name: Résumé du build
         run: |
-          echo "Images buildées avec succès"
+          echo "Images buildées avec succès (tags : latest + $SHA_TAG)"
           docker images | grep cesizen
+          if [ "${{ github.event_name }}" = "push" ]; then
+            echo "Poussées sur GHCR sous $IMAGE_PREFIX/cesizen-*"
+          fi

@@ -28,7 +28,7 @@ jobs:
 
     steps:
       - name: Récupération du code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       # GHCR exige des noms d'images en minuscules — on calcule le préfixe ghcr.io/<owner>
       - name: Définir le préfixe des images
